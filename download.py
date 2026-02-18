@@ -1,16 +1,23 @@
 import requests
 import os
-from pathlib import Path
 
-species = "Ochotona princeps"
-url = f"https://xeno-canto.org/api/3/recordings?query={species.replace(' ', '+')}"
-parent_dir = Path(__file__).resolve().parent
-print(parent_dir)
-with open(os.path.join(parent_dir, "key"), "r") as f:
+url = "https://xeno-canto.org/api/3/recordings"
+
+# Load API key
+with open("key", "r") as f:
     key = f.readline().strip()
 
-data = requests.get(query=url, key=key).json()
-print(data)
+params = {
+    "query": 'sp:"Ochotona princeps"',
+    "key": key,
+    "per_page": 100
+}
+
+response = requests.get(url, params=params)
+data = response.json()
+
+# print(data)
+
 os.makedirs("pika_audio", exist_ok=True)
 
 for rec in data["recordings"]:
@@ -23,4 +30,6 @@ for rec in data["recordings"]:
 
     # Save metadata
     with open("pika_metadata.csv", "a") as m:
-        m.write(f'{rec["id"]},{rec["date"]},{rec["lat"]},{rec["lng"]},{rec["q"]}\n')
+        m.write(
+            f'{rec["id"]},{rec["date"]},{rec["lat"]},{rec["lon"]},{rec["q"]}\n'
+        )
