@@ -1,0 +1,1868 @@
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Megascops roboratus
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Megascops choliba
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Raorchestes honeyi
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Lophotriccus pileatus
+
+#0.00s - 10.00s#: Leptodactylus labyrinthicus
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Leptopelis spiritusnoctis
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Anas platyrhynchos
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Stenella coeruleoalba
+
+#0.00s - 10.00s#: Antrostomus rufus
+
+#0.00s - 10.00s#: Megascops vermiculatus
+
+#0.00s - 10.00s#: Leptodactylus albilabris
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Nyctiphrynus ocellatus
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Megascops choliba
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Empidonax virescens
+
+#0.00s - 10.00s#: Antrostomus rufus
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Hyperolius semidiscus
+
+#0.00s - 10.00s#: Physalaemus biligonigerus
+
+#0.00s - 10.00s#: Poecilotriccus fumifrons
+
+#0.00s - 10.00s#: Eleutherodactylus campi
+
+#0.00s - 10.00s#: Cacosternum capense
+
+#0.00s - 10.00s#: Megatibicen auletes
+
+#0.00s - 10.00s#: Corythaeola cristata
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Dendropsophus nanus
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Physalaemus biligonigerus
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Lagenodelphis hosei
+
+#0.00s - 10.00s#: Pyrrhura molinae
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Scytalopus atratus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Leptopelis spiritusnoctis
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Strongylopus grayii
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Dendropsophus leucophyllatus
+
+#0.00s - 10.00s#: Boana callipygos
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Dendropsophus molitor
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Otus rufescens
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Phyllomedusa bicolor
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Lagenodelphis hosei
+
+#0.00s - 10.00s#: Chordeiles minor
+
+#0.00s - 10.00s#: Scudderia septentrionalis
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Lagenodelphis hosei
+
+#0.00s - 10.00s#: Patagioenas cayennensis
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Rallus aquaticus
+
+#0.00s - 10.00s#: Turdus fumigatus
+
+#0.00s - 10.00s#: Crypturellus undulatus
+
+#0.00s - 10.00s#: Physalaemus biligonigerus
+
+#0.00s - 10.00s#: Volatinia jacarina
+
+#0.00s - 10.00s#: Megascops roboratus
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Hyperolius kivuensis
+
+#0.00s - 10.00s#: Psilopogon viridis
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Rhinella dorbignyi
+
+#0.00s - 10.00s#: Megaptera novaeangliae
+
+#0.00s - 10.00s#: Poecilotriccus sylvia
+
+#0.00s - 10.00s#: Eleutherodactylus brittoni
+
+#0.00s - 10.00s#: Phyllomedusa bicolor
+
+#0.00s - 10.00s#: Cystosoma saundersii
+
+#0.00s - 10.00s#: Ramphastos toco
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Cantorchilus leucotis, Crypturellus undulatus
+
+#0.00s - 10.00s#: Scinax uruguayus
+
+#0.00s - 10.00s#: Myiornis atricapillus
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Leptodactylus albilabris
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Dendropsophus molitor
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Polyerata amabilis
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Hyla versicolor
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Dendropsophus bogerti
+
+#0.00s - 10.00s#: Chlorocysta vitripennis
+
+#0.00s - 10.00s#: Rufirallus viridis
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Scinax granulatus
+
+#0.00s - 10.00s#: Lagenorhynchus acutus
+
+#0.00s - 10.00s#: Gavia stellata
+
+#0.00s - 10.00s#: Leptodactylus labyrinthicus
+
+#0.00s - 10.00s#: Batrachostomus septimus
+
+#0.00s - 10.00s#: Hemitriccus diops
+
+#0.00s - 10.00s#: Grylloderma lineata
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Leptodactylus diadematus
+
+#0.00s - 10.00s#: Leptodactylus melanonotus
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Phaenostictus mcleannani
+
+#0.00s - 10.00s#: Lagenodelphis hosei
+
+#0.00s - 10.00s#: Myiozetetes cayanensis
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Liosceles thoracicus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Dendropsophus bogerti
+
+#0.00s - 10.00s#: Adelotus brevis
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Glaucidium perlatum
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Cantorchilus leucotis
+
+#0.00s - 10.00s#: Antigone canadensis, Nyctipolus nigrescens
+
+#0.00s - 10.00s#: Dendrocincla turdina
+
+#0.00s - 10.00s#: Stilpnia cyanicollis
+
+#0.00s - 10.00s#: Strix varia
+
+#0.00s - 10.00s#: Steatornis caripensis
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Corvus corax
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Glaucidium griseiceps
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Dendropsophus bogerti
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Baryphthengus ruficapillus
+
+#0.00s - 10.00s#: Strix woodfordii
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: None
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Dendropsophus leucophyllatus
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Hyla versicolor
+
+#0.00s - 10.00s#: Boana rosenbergi
+
+#0.00s - 10.00s#: Physeter catodon
+
+#0.00s - 10.00s#: Nycticorax nycticorax
+
+#0.00s - 10.00s#: Xenogryllus marmoratus
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Chordeiles acutipennis
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Pogoniulus leucomystax
+
+#0.00s - 10.00s#: Lophostrix cristata
+
+#0.00s - 10.00s#: Crinia signifera
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Boana freicanecae
+
+#0.00s - 10.00s#: Crinia signifera
+
+#0.00s - 10.00s#: Stenella attenuata
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Hylorina sylvatica
+
+#0.00s - 10.00s#: Cacosternum nanum
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Megascops guatemalae
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Scytalopus atratus
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Micrastur semitorquatus
+
+#0.00s - 10.00s#: Lagenorhynchus acutus
+
+#0.00s - 10.00s#: Phyllomedusa bicolor
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Phyllomyias fasciatus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Lagenorhynchus acutus
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Pleurodema thaul
+
+#0.00s - 10.00s#: Anaxyrus punctatus
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Acris gryllus
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Hypopachus variolosus
+
+#0.00s - 10.00s#: Leptodactylus melanonotus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Lithobates sphenocephalus
+
+#0.00s - 10.00s#: Engystomops pustulosus
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Amaurornis phoenicurus
+
+#0.00s - 10.00s#: Scinax granulatus
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Stilpnia cyanicollis
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Hyperolius semidiscus
+
+#0.00s - 10.00s#: Cacosternum nanum
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Turdus migratorius
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Coccyzus americanus
+
+#0.00s - 10.00s#: Batrachostomus cornutus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Cacosternum boettgeri
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Arunta perulata
+
+#0.00s - 10.00s#: Boana platanera
+
+#0.00s - 10.00s#: Megascops choliba
+
+#0.00s - 10.00s#: Acris gryllus
+
+#0.00s - 10.00s#: Lophotriccus pileatus
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Scinax squalirostris
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Megascops atricapilla
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Crypturellus undulatus
+
+#0.00s - 10.00s#: Selenidera maculirostris
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Psaltoda plaga
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Glaucidium griseiceps
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Limnodynastes dumerilii
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Cystopsaltria immaculata
+
+#0.00s - 10.00s#: Mareca strepera
+
+#0.00s - 10.00s#: Aegolius harrisii
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Chlorocysta vitripennis
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Cicada cretensis
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Boana platanera
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Phyllomedusa tomopterna
+
+#0.00s - 10.00s#: Nothocrax urumutum
+
+#0.00s - 10.00s#: Cacosternum boettgeri
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Turdus lawrencii
+
+#0.00s - 10.00s#: Megatibicen auletes
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Leptodactylus petersii
+
+#0.00s - 10.00s#: Daptrius ater
+
+#0.00s - 10.00s#: Colibri coruscans
+
+#0.00s - 10.00s#: Lithobates catesbeianus
+
+#0.00s - 10.00s#: Arremon aurantiirostris
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Gryllus campestris
+
+#0.00s - 10.00s#: Hyla squirella
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Lurocalis semitorquatus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Aegolius harrisii
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Boana freicanecae
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Muntiacus vaginalis
+
+#0.00s - 10.00s#: Pristimantis unistrigatus
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Cacosternum boettgeri
+
+#0.00s - 10.00s#: Ortalis leucogastra
+
+#0.00s - 10.00s#: Lonchura striata
+
+#0.00s - 10.00s#: Strix varia
+
+#0.00s - 10.00s#: Aegithalos caudatus
+
+#0.00s - 10.00s#: Leptodactylus albilabris
+
+#0.00s - 10.00s#: Dendropsophus bogerti
+
+#0.00s - 10.00s#: Cacosternum nanum
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Oecanthus fultoni
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Crypturellus undulatus
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Cuculus canorus
+
+#0.00s - 10.00s#: Lasiurus intermedius
+
+#0.00s - 10.00s#: Psaltoda plaga
+
+#0.00s - 10.00s#: Aegolius harrisii
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Leptodactylus fuscus
+
+#0.00s - 10.00s#: Raorchestes luteolus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Thamnophilus doliatus
+
+#0.00s - 10.00s#: Antrostomus ridgwayi
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Pulsatrix melanota
+
+#0.00s - 10.00s#: Gavia arctica
+
+#0.00s - 10.00s#: Butorides striata
+
+#0.00s - 10.00s#: Smilisca baudinii
+
+#0.00s - 10.00s#: Stenella coeruleoalba
+
+#0.00s - 10.00s#: Hylarana latouchii
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Crinia signifera
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Leptodactylus albilabris
+
+#0.00s - 10.00s#: Saltator maximus
+
+#0.00s - 10.00s#: Physalaemus fuscus
+
+#0.00s - 10.00s#: Zenaida macroura
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Myiarchus tyrannulus
+
+#0.00s - 10.00s#: Ixoreus naevius
+
+#0.00s - 10.00s#: Aegotheles crinifrons
+
+#0.00s - 10.00s#: Fringilla coelebs, Litoria rothii
+
+#0.00s - 10.00s#: Glaucidium hardyi
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Rhinella horribilis
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Scinax perereca
+
+#0.00s - 10.00s#: Batrachostomus septimus ss menagei
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Leptodactylus melanonotus
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Gomphocerippus rufus
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Asio stygius
+
+#0.00s - 10.00s#: Psaltoda brachypennis
+
+#0.00s - 10.00s#: Arremon aurantiirostris
+
+#0.00s - 10.00s#: Antrostomus rufus
+
+#0.00s - 10.00s#: Poecilotriccus sylvia
+
+#0.00s - 10.00s#: Megascops guatemalae
+
+#0.00s - 10.00s#: Phaethornis longirostris
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Eleothreptus anomalus
+
+#0.00s - 10.00s#: Chlorocysta vitripennis
+
+#0.00s - 10.00s#: Strongylopus grayii
+
+#0.00s - 10.00s#: Aegolius harrisii
+
+#0.00s - 10.00s#: Thamnophilus murinus
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Physalaemus albonotatus
+
+#0.00s - 10.00s#: Scytalopus atratus
+
+#0.00s - 10.00s#: Dendropsophus bogerti
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Leptodactylus fuscus
+
+#0.00s - 10.00s#: Pulsatrix koeniswaldiana
+
+#0.00s - 10.00s#: Physalaemus biligonigerus
+
+#0.00s - 10.00s#: Dendropsophus molitor
+
+#0.00s - 10.00s#: Megapodius freycinet
+
+#0.00s - 10.00s#: Arremon aurantiirostris
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Polypedates leucomystax
+
+#0.00s - 10.00s#: Antrostomus ekmani
+
+#0.00s - 10.00s#: Boana platanera
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Macrotristria maculicollis
+
+#0.00s - 10.00s#: Batrachyla antartandica
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Batrachostomus cornutus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Engystomops pustulosus
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Antrostomus rufus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Pristimantis achatinus
+
+#0.00s - 10.00s#: Megascops choliba
+
+#0.00s - 10.00s#: Myiarchus crinitus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Leptodactylus luctator
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Calidris alpina
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Thryophilus pleurostictus
+
+#0.00s - 10.00s#: Nycticorax nycticorax
+
+#0.00s - 10.00s#: Pulsatrix melanota
+
+#0.00s - 10.00s#: Phascolarctos cinereus
+
+#0.00s - 10.00s#: Pheugopedius fasciatoventris
+
+#0.00s - 10.00s#: Strongylopus grayii
+
+#0.00s - 10.00s#: Boana freicanecae
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Basileuterus culicivorus
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Phrynomantis annectens
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Boana platanera
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Tigrisoma lineatum, Crypturellus undulatus
+
+#0.00s - 10.00s#: Lurocalis semitorquatus
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Boana freicanecae
+
+#0.00s - 10.00s#: Crypturellus undulatus
+
+#0.00s - 10.00s#: Strongylopus grayii
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Dendropsophus bogerti
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Leptodactylus luctator
+
+#0.00s - 10.00s#: Porzana pusilla
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Lurocalis semitorquatus
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Oecanthus fultoni
+
+#0.00s - 10.00s#: Lithobates berlandieri
+
+#0.00s - 10.00s#: Hyperolius kivuensis
+
+#0.00s - 10.00s#: Megascops atricapilla
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Prionops plumatus, Prionops plumatus, Telophorus zeylonus, Pogoniulus pusillus, Prionops retzii, Telophorus zeylonus, Pogoniulus pusillus, Prionops retzii, Prionops plumatus, Telophorus zeylonus, Prionops retzii, Pogoniulus pusillus, Prionops plumatus, Telophorus zeylonus, Prionops retzii, Pogoniulus pusillus, Prionops retzii, Prionops plumatus, Telophorus zeylonus, Pogoniulus pusillus, Prionops retzii, Prionops plumatus, Telophorus zeylonus, Pogoniulus pusillus, Prionops retzii, Prionops plumatus, Telophorus zeylonus, Pogoniulus pusillus, Prionops retzii, Prionops plumatus, Telophorus zeylonus, Pogoniulus pusillus, Prionops retzii, Prionops plumatus, Telophorus zeylonus, Pogoniulus pusillus, Prionops retzii, Prionops plumatus, Telophorus zeylonus, Pogoniulus pusillus, Prionops retzii, Prionops plumatus, Telophorus zeylonus
+
+#0.00s - 10.00s#: Pionites leucogaster
+
+#0.00s - 10.00s#: Megascops atricapilla
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Batrachyla leptopus
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Neocrex erythrops
+
+#0.00s - 10.00s#: Physalaemus biligonigerus
+
+#0.00s - 10.00s#: Poyntonia paludicola
+
+#0.00s - 10.00s#: Rhinophrynus dorsalis
+
+#0.00s - 10.00s#: Hypsipetes everetti
+
+#0.00s - 10.00s#: Otus rufescens
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Cacosternum capense
+
+#0.00s - 10.00s#: Glaucidium griseiceps
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Ptilocichla falcata
+
+#0.00s - 10.00s#: Strix varia
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Megascops atricapilla
+
+#0.00s - 10.00s#: Stenella attenuata
+
+#0.00s - 10.00s#: Megascops guatemalae
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Corvus corax
+
+#0.00s - 10.00s#: Otus rufescens
+
+#0.00s - 10.00s#: Aegolius harrisii
+
+#0.00s - 10.00s#: Zhangixalus arvalis
+
+#0.00s - 10.00s#: Rallina eurizonoides ss eurizonoides
+
+#0.00s - 10.00s#: Ranoidea raniformis
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Phaethornis longirostris
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Strongylopus grayii
+
+#0.00s - 10.00s#: Eupetes macrocerus
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Dendropicos gabonensis
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Hyla chrysoscelis
+
+#0.00s - 10.00s#: Leptodactylus albilabris
+
+#0.00s - 10.00s#: Physalaemus albonotatus
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Engystomops pustulosus
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Crypturellus undulatus
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Dendropsophus nanus
+
+#0.00s - 10.00s#: Aegolius harrisii
+
+#0.00s - 10.00s#: Tyto furcata
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Pitangus sulphuratus
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Stenella attenuata
+
+#0.00s - 10.00s#: Hyperolius pickersgilli
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Scinax granulatus
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Psaltoda plaga
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Crypturellus undulatus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Raorchestes ponmudi
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Porzana porzana
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Dendropsophus leucophyllatus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Bubo milesi
+
+#0.00s - 10.00s#: Microcerculus marginatus
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Aegolius harrisii
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Leptodactylus elenae
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Rallus aquaticus
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Strongylopus bonaespei
+
+#0.00s - 10.00s#: Kurixalus idiootocus
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Batrachostomus septimus
+
+#0.00s - 10.00s#: Otus lettia
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Dendropsophus melanargyreus
+
+#0.00s - 10.00s#: Megaptera novaeangliae
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Patagioenas cayennensis
+
+#0.00s - 10.00s#: Scinax granulatus
+
+#0.00s - 10.00s#: Hylomanes momotula
+
+#0.00s - 10.00s#: Psaltoda plaga
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Luscinia megarhynchos
+
+#0.00s - 10.00s#: Spilopelia chinensis
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Megascops guatemalae
+
+#0.00s - 10.00s#: Amietia delalandii
+
+#0.00s - 10.00s#: Lagenodelphis hosei
+
+#0.00s - 10.00s#: Megascops atricapilla
+
+#0.00s - 10.00s#: Batrachostomus septimus
+
+#0.00s - 10.00s#: Physalaemus fuscus
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Pulsatrix melanota
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Scinax granulatus
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Otus alfredi
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Hyla versicolor
+
+#0.00s - 10.00s#: Nyctipolus nigrescens
+
+#0.00s - 10.00s#: Otus rufescens
+
+#0.00s - 10.00s#: Anhima cornuta
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Eleutherodactylus marnockii
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Crypturellus noctivagus
+
+#0.00s - 10.00s#: Lagenodelphis hosei
+
+#0.00s - 10.00s#: Leptodactylus albilabris
+
+#0.00s - 10.00s#: Litoria dentata
+
+#0.00s - 10.00s#: Leptodactylus melanonotus
+
+#0.00s - 10.00s#: Boana fasciata
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Leptopelis viridibilis
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Crinia signifera
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Hypotretus hypoxanthus
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Dendropsophus bogerti
+
+#0.00s - 10.00s#: Psaltoda plaga
+
+#0.00s - 10.00s#: Lagenodelphis hosei
+
+#0.00s - 10.00s#: Otus lettia
+
+#0.00s - 10.00s#: Rufirallus viridis
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Smilisca baudinii
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Oecanthus fultoni
+
+#0.00s - 10.00s#: Icterus spurius
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Leptodactylus mystacinus
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Boana freicanecae
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Leptodactylus petersii
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Coccyzus americanus
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Batrachostomus septimus
+
+#0.00s - 10.00s#: Batrachostomus cornutus
+
+#0.00s - 10.00s#: Scytalopus atratus
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Pheugopedius genibarbis
+
+#0.00s - 10.00s#: Coccyzus lansbergi
+
+#0.00s - 10.00s#: Leptopelis natalensis
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Pseudis minuta
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Physalaemus albonotatus
+
+#0.00s - 10.00s#: Hylarana latouchii
+
+#0.00s - 10.00s#: Leptodactylus fuscus
+
+#0.00s - 10.00s#: Batrachyla taeniata
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Ranoidea gracilenta
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Herpsilochmus dorsimaculatus
+
+#0.00s - 10.00s#: Myiornis ecaudatus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Theristicus caudatus
+
+#0.00s - 10.00s#: Tyto alba
+
+#0.00s - 10.00s#: Cacosternum capense
+
+#0.00s - 10.00s#: Batrachyla antartandica
+
+#0.00s - 10.00s#: Scinax granulatus
+
+#0.00s - 10.00s#: Lurocalis semitorquatus
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Raorchestes akroparallagi
+
+#0.00s - 10.00s#: Eleutherodactylus planirostris
+
+#0.00s - 10.00s#: Raorchestes luteolus
+
+#0.00s - 10.00s#: Arremon taciturnus
+
+#0.00s - 10.00s#: Amietia fuscigula
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Leptodactylus latinasus
+
+#0.00s - 10.00s#: Coccyzus longirostris
+
+#0.00s - 10.00s#: Phyllodytes gyrinaethes
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Megascops atricapilla
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Sporophila nigricollis
+
+#0.00s - 10.00s#: Crypturellus obsoletus
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Polypedates leucomystax
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Basileuterus delattrii
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Scinax squalirostris
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Zhangixalus moltrechti
+
+#0.00s - 10.00s#: Pulsatrix melanota
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Polytmus theresiae
+
+#0.00s - 10.00s#: Leptotila verreauxi ss verreauxi
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Physalaemus albonotatus
+
+#0.00s - 10.00s#: Engystomops pustulosus
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Boana cinerascens
+
+#0.00s - 10.00s#: Psarocolius decumanus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Leptodactylus labyrinthicus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Panurus biarmicus
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Pseudacris regilla
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Leptodactylus fuscus
+
+#0.00s - 10.00s#: Dives dives
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Batrachostomus septimus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Megascops asio
+
+#0.00s - 10.00s#: Dicaeum trigonostigma
+
+#0.00s - 10.00s#: Microcentrum rhombifolium
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Globicephala melaena
+
+#0.00s - 10.00s#: Strongylopus grayii
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Leptodactylus melanonotus
+
+#0.00s - 10.00s#: Lophotriccus vitiosus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Lagenorhynchus acutus
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Asio clamator
+
+#0.00s - 10.00s#: Icterus spurius
+
+#0.00s - 10.00s#: Lithobates catesbeianus
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Hylorina sylvatica
+
+#0.00s - 10.00s#: Scinax nasicus
+
+#0.00s - 10.00s#: Nyctidromus albicollis
+
+#0.00s - 10.00s#: Antrostomus ridgwayi
+
+#0.00s - 10.00s#: Podargus strigoides
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Megascops atricapilla
+
+#0.00s - 10.00s#: Nyctibius griseus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Cystosoma saundersii
+
+#0.00s - 10.00s#: Scinax fuscovarius
+
+#0.00s - 10.00s#: Dendropsophus nanus
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Steatornis caripensis
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Rallina leucospila
+
+#0.00s - 10.00s#: Megascops choliba
+
+#0.00s - 10.00s#: Megascops guatemalae
+
+#0.00s - 10.00s#: Dendropsophus nanus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Eleutherodactylus planirostris
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Tyrannopsis sulphurea
+
+#0.00s - 10.00s#: Gymnasio nudipes
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Strix aluco
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Strix varia
+
+#0.00s - 10.00s#: Bubo virginianus
+
+#0.00s - 10.00s#: Boana boans
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Sclerophrys capensis
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Acris blanchardi
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Gavia stellata
+
+#0.00s - 10.00s#: Strongylopus grayii
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Yungipicus maculatus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Phrynobatrachus natalensis
+
+#0.00s - 10.00s#: Poecile carolinensis
+
+#0.00s - 10.00s#: Megascops watsonii
+
+#0.00s - 10.00s#: Glaucidium castanopterum
+
+#0.00s - 10.00s#: Thamnophilus ruficapillus
+
+#0.00s - 10.00s#: Cacosternum boettgeri
+
+#0.00s - 10.00s#: Pholidoptera griseoaptera
+
+#0.00s - 10.00s#: Smilisca baudinii
+
+#0.00s - 10.00s#: Saltator maximus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Megascops roraimae
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Litoria peronii
+
+#0.00s - 10.00s#: Pulsatrix perspicillata
+
+#0.00s - 10.00s#: Psaltoda plaga
+
+#0.00s - 10.00s#: Physalaemus biligonigerus
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Podargus ocellatus
+
+#0.00s - 10.00s#: Boana bischoffi
+
+#0.00s - 10.00s#: Boana platanera
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Antrostomus ridgwayi
+
+#0.00s - 10.00s#: Scinax granulatus
+
+#0.00s - 10.00s#: Pseudacris regilla
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Glaucidium brasilianum
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Megascops atricapilla
+
+#0.00s - 10.00s#: Arunta perulata
+
+#0.00s - 10.00s#: Turdus torquatus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Pristimantis unistrigatus
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Hyla versicolor
+
+#0.00s - 10.00s#: Hyperolius kivuensis
+
+#0.00s - 10.00s#: Patagioenas cayennensis
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Oecanthus beameri
+
+#0.00s - 10.00s#: Rhinella horribilis
+
+#0.00s - 10.00s#: Nyctibius grandis
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Fluvicola nengeta
+
+#0.00s - 10.00s#: Phyllomedusa tomopterna
+
+#0.00s - 10.00s#: Hyperolius tuberilinguis
+
+#0.00s - 10.00s#: Antrostomus carolinensis
+
+#0.00s - 10.00s#: Pseudophryne semimarmorata
+
+#0.00s - 10.00s#: Rhinella marina
+
+#0.00s - 10.00s#: Aerodramus vanikorensis
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Boana pulchella
+
+#0.00s - 10.00s#: Lurocalis semitorquatus
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Hemisus guttatus
+
+#0.00s - 10.00s#: Megascops atricapilla
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Hypopachus variolosus
+
+#0.00s - 10.00s#: Physalaemus biligonigerus
+
+#0.00s - 10.00s#: Gryllus pennsylvanicus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Hyperolius viridiflavus
+
+#0.00s - 10.00s#: Cacosternum boettgeri
+
+#0.00s - 10.00s#: Dendropsophus minutus
+
+#0.00s - 10.00s#: Duttaphrynus melanostictus
+
+#0.00s - 10.00s#: Otus rufescens
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Dendropsophus bogerti
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Strongylopus grayii
+
+#0.00s - 10.00s#: Dendropsophus microcephalus
+
+#0.00s - 10.00s#: Leptodactylus labyrinthicus
+
+#0.00s - 10.00s#: Hyperolius pusillus
+
+#0.00s - 10.00s#: Ninox scutulata
+
+#0.00s - 10.00s#: Leptodactylus rhodomystax
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Podargus ocellatus
+
+#0.00s - 10.00s#: Dendropsophus minutus, Tyto alba
+
+#0.00s - 10.00s#: Rallus caerulescens
+
+#0.00s - 10.00s#: Gryllus campestris
+
+#0.00s - 10.00s#: Hyperolius kivuensis
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Antrostomus ridgwayi
+
+#0.00s - 10.00s#: Turdus leucomelas
+
+#0.00s - 10.00s#: Phyllomedusa bicolor
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Boana faber
+
+#0.00s - 10.00s#: Eumodicogryllus bordigalensis
+
+#0.00s - 10.00s#: Microhyla heymonsi
+
+#0.00s - 10.00s#: Leptodactylus labyrinthicus
+
+#0.00s - 10.00s#: Megascops trichopsis
+
+#0.00s - 10.00s#: Boana albopunctata
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Haplospiza unicolor
+
+#0.00s - 10.00s#: Megascops centralis
+
+#0.00s - 10.00s#: Hyperolius substriatus
+
+#0.00s - 10.00s#: Strix virgata
+
+#0.00s - 10.00s#: Boana freicanecae
+
+#0.00s - 10.00s#: Megatibicen auletes
+

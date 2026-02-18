@@ -6,7 +6,6 @@ import torch
 from torch.utils.data import Dataset
 import soundfile as sf
 from sklearn.model_selection import train_test_split
-import torchaudio.functional as F
 import torchaudio.transforms as T
 
 from NatureLMaudio.NatureLM.dataset import collater
@@ -56,7 +55,10 @@ class AnuraDataset(Dataset):
         self.code_to_species = dict(zip(species_df["Code"], species_df["Species"]))
 
         # Load the main metadata
-        df = pd.read_csv(self.root_dir / "metadata.csv")
+        if os.path.exists(os.path.join(self.root_dir, "metadata_extra.csv")):
+            df = pd.read_csv(self.root_dir / "metadata_extra.csv")
+        else:
+            df = pd.read_csv(self.root_dir / "metadata.csv")
 
         # Add the new columns that occur in our mapping and csv to a list
         code_columns = []
@@ -77,10 +79,27 @@ class AnuraDataset(Dataset):
         # Store the labels at the class level
         AnuraDataset._label_columns = label_columns
 
+        # Add the audio_path and/or task column if we dont have it
+        if "audio_path" not in df.columns or "task" not in df.columns or "instruction" not in df.columns:
+            if "audio_path" not in df.columns:
+                df["audio_path"] = (str(self.root_dir) + "/audio/" + df[self.station_column] + "/" + df[self.audio_column] + "_" + df['min_t'].astype(str) + "_" + df['max_t'].astype(str) + ".wav")
+            
+            if "task" not in df.columns:
+                # df["task"] = "species-sci-options-classification"
+                df["task"] = "species-multiple-detection"
+            
+            if "instruction" not in df.columns:
+                df["instruction"] = "<Audio><AudioHere></Audio> What are the scientific names for the species in the audio, if any?"
+
+            if "output" not in df.columns:
+                df["output"] = self._create_output_column(df, AnuraDataset._label_columns)
+
+            self._save_metadata_extra(df)
+
         if self.percentage is not None:
             # Create startification labels (presence/absence)
             # Stratification means that our train/valid/test splits will contain the same proportion of each class label as the original dataset (no skew)
-            current_stratify = df[self.label_columns].sum(axis=1) > 0
+            current_stratify = df[AnuraDataset._label_columns].sum(axis=1) > 0
             _, df= train_test_split(df, test_size=self.percentage, random_state=42, stratify=current_stratify)
 
         # Create stratification labels for the potentially reduced dataframe to avoid size mismatch error
@@ -107,6 +126,26 @@ class AnuraDataset(Dataset):
         print(f"\tTest: {len(test_df)} samples")
         print("="*30)
     
+    def _create_output_column(self, df, label_columns):
+        outputs = []
+        for idx, row in df[label_columns].iterrows():
+            # Get species names where we have a 1 (the species occurs in the given set)
+            species_pres = []
+            for col in label_columns:
+                if row[col] == 1:
+                    species_pres.append(col)
+            
+            if species_pres:
+                outputs.append(", ".join(species_pres))
+            else:
+                outputs.append("None")
+        
+        return outputs
+
+    def _save_metadata_extra(self, df):
+        output_path = self.root_dir / "metadata_extra.csv"
+        df.to_csv(output_path, index=False)
+
     def load_audio(self, audio_path):
         """Load audio for fine-tuning and preprocess it"""
         try:
@@ -164,11 +203,12 @@ class AnuraDataset(Dataset):
         row = self.df.iloc[index]
 
         # Get the audio path
-        audio_filename = row[self.audio_column]
-        station = row[self.station_column]
-        min_t = row["min_t"]
-        max_t = row["max_t"]
-        audio_path = Path(f"{self.root_dir}/audio/{station}/{audio_filename}_{min_t}_{max_t}.wav")
+        # audio_filename = row[self.audio_column]
+        # station = row[self.station_column]
+        # min_t = row["min_t"]
+        # max_t = row["max_t"]
+        # audio_path = Path(f"{self.root_dir}/audio/{station}/{audio_filename}_{min_t}_{max_t}.wav")
+        audio_path = row["audio_path"]
 
         # Load in the audio
         audio = self.load_audio(audio_path)

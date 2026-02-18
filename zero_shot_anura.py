@@ -1,36 +1,51 @@
 import os
-import pandas as pd
+import gc
 from pathlib import Path
+from huggingface_hub import HfFolder, login
+import argparse
+
+token = HfFolder.get_token()
+login(token=token)
+del token
+gc.collect()
 
 current_dir = Path.cwd()
-beans_dir = Path(os.path.join(current_dir, "data/BEANS-Zero"))
 naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
-# sys.path.append(naturelm_dir) # Appending to system path allows us to do "import infer" instead of "import NatureLMaudio.infer"
 
+from NatureLMaudio.NatureLM.config import Config
+from NatureLMaudio.NatureLM.infer import load_model_and_config
+from NatureLMaudio.NatureLM.runner import Runner
 from NatureLMaudio.NatureLM.infer import Pipeline
 
 from xeno_dataset import XenoDataset
 
+from anura_dataset import AnuraDataset
+
+def get_anura_datasets(config, percentage):
+    datasets = {}
+
+    datasets["train"] = AnuraDataset(config=config, percentage=percentage, split="train")
+    datasets["valid"] = AnuraDataset(config=config, percentage=percentage, split="valid")
+    datasets["test"] = AnuraDataset(config=config, percentage=percentage, split="test")
+
+    return datasets
+
 def main():
+    parser = argparse.ArgumentParser(description="A script to fine-tune the NatureLM-audio model on frog and toad species classification")
+    parser.add_argument("--percentage", type=float, default=None, help="Designate the percentage of the full dataset used for fine-tuning")
+    args = parser.parse_args()
+
     # Load our config
     cfg_path = "NatureLMaudio/configs/inference.yml"
+    cfg = Config.from_sources(cfg_path)
 
     # Load in dataset
     print("Loading the dataset...")
-    xeno_pth = os.path.join(beans_dir, "xeno_full.pkl")
-    if not os.path.exists(xeno_pth):
-        xeno_dataset = XenoDataset(beans_dir)
-        xeno_df = xeno_dataset.get_full_df()
-        xeno_df.to_pickle(xeno_pth)
-    else:
-        xeno_df = pd.read_pickle(xeno_pth)
-
-    print(f"Full DataFrame shape: {xeno_df.shape}")
-    print(f"Columns: {xeno_df.columns.tolist()}")
+    datasets = get_anura_datasets(cfg, args.percentage)
 
     # Run the pipeline
     print("Running the pipeline...")
-    results_path = os.path.join(current_dir, "outputs/naturelm_zeroshot_calltype/")
+    results_path = os.path.join(current_dir, "outputs/naturelm_zeroshot_anura/")
     os.makedirs(results_path, exist_ok=True)
     results_file = os.path.join(results_path, "results.txt")
     results = []
@@ -42,7 +57,7 @@ def main():
 
         # NOTE: We include instruction instead of instruction_text because it eventually gets passed to the generator,
         # which needs the location identifier (<Audio><AudioHere></Audio>) of where to place the audio embedding
-        results = infer_pipe(xeno_df["audio"], xeno_df["instruction"])
+        results = infer_pipe(datasets["test"].df["audio_path"], datasets["test"].df["instruction"])
         
         with open(results_file, "w") as f:
             f.write("\n".join(results) + "\n") # Write to the file, joining each result's time clips by new lines. Each result is then separated by a whole new line
@@ -53,8 +68,8 @@ def main():
             for line in f:
                 results.append(line.rstrip())
 
-    print(f"Number of results: {len(results)}")
-    print(f"Number of samples: {len(xeno_df)}")
+    # print(f"Number of results: {len(results)}")
+    # print(f"Number of samples: {len(xeno_df)}")
 
     # Group the results by audio file
     grouped_results = []
@@ -94,34 +109,50 @@ def main():
 
     total_correct = 0
     for index, row in enumerate(grouped_results):
-        ground_truth = xeno_df.iloc[index]["output"].strip().lower()
+        ground_truth = datasets["test"].df.iloc[index]["output"].strip().lower()
 
         # Parse the window predictions
         window_preds = []
         for window_result in row:
-            # Split at a ":", returning the next parsed string after it as 1 whole string. It then returns the index 1 item of the returned string,
+            # Split at a ":", returning the next parsed string after it as 1 whole string,
             # removing white spaces and setting it to lower-case
             # print(f"{window_result}, {type(window_result)}")
             if window_result != "":
-                prediction = window_result.split(":", 1)[1].strip().lower() 
-                # print(f"{prediction}, {type(prediction)}")
-                if prediction in ["call", "song"]:
-                    window_preds.append(prediction)
+                prediction_list = window_result.split(":", 1)
+                if len(prediction_list) > 1:
+                    prediction_text = prediction_list[1].strip().lower()
+                else:
+                    prediction_text = prediction_list[0].strip().lower()
+                predictions = []
+                for pred in prediction_text.split(","):
+                    predictions.append(pred.strip().lower())
+                
+                for pred in predictions:
+                    # Make the labels lower-case
+                    species_lower = []
+                    for species in datasets["test"].label_columns:
+                        species_lower.append(species.lower())
+                    
+                    if pred in species_lower or pred == "none":
+                        window_preds.append(pred)
         
         # Apply simple majority vote
-        most_common_pred = majority_vote(window_preds)
+        if window_preds:  # Only vote if we have predictions
+            most_common_preds = majority_vote(window_preds)
+        else:
+            most_common_preds = "none" # Default if no predictions
 
-        if most_common_pred == ground_truth:
+        if most_common_preds == ground_truth:
             total_correct += 1
 
         if index < 5: # Print first 5 examples
             print(f"\nExample {index}:")
             print(f"Ground truth: {ground_truth}")
             print(f"Window predictions: {window_preds}")
-            print(f"Aggregated prediction (majority vote): {most_common_pred}")
-            print(f"Correct: {most_common_pred == ground_truth}")
+            print(f"Aggregated prediction (majority vote): {most_common_preds}")
+            print(f"Correct: {most_common_preds == ground_truth}")
     
-    accuracy = total_correct / len(xeno_df)
+    accuracy = (total_correct / len(datasets["test"].df)) * 100
     print(f"\nZero-Shot Accuracy (majority vote): {accuracy}")
 
 if __name__ == "__main__":
