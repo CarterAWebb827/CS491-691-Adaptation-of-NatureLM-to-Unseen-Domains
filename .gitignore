@@ -215,3 +215,6 @@ test.csv
 test.py
 key
 data/Pika
+zero_shot_pika.py
+process_one_parquet.py
+main_downloader.py
