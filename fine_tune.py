@@ -27,9 +27,9 @@ from anura_dataset import AnuraDataset
 def get_anura_datasets(config, percentage, data_dir):
     datasets = {}
 
-    datasets["train"] = AnuraDataset(config=config, percentage=percentage, split="train", data_dir=data_dir)
-    datasets["valid"] = AnuraDataset(config=config, percentage=percentage, split="valid", data_dir=data_dir)
-    datasets["test"] = AnuraDataset(config=config, percentage=percentage, split="test", data_dir=data_dir)
+    datasets["train"] = AnuraDataset(config=config, percentage=percentage, split="train", root_dir=data_dir)
+    datasets["valid"] = AnuraDataset(config=config, percentage=percentage, split="valid", root_dir=data_dir)
+    datasets["test"] = AnuraDataset(config=config, percentage=percentage, split="test", root_dir=data_dir)
 
     return datasets
 
