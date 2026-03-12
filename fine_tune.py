@@ -71,12 +71,24 @@ def main():
     from accelerate import cpu_offload
 
     # Make sure only LoRA parameters are trainable
+    trainable_params = 0
+    total_params = 0
     for name, param in model.named_parameters():
-        if "lora" not in name:
+        if "lora" not in name.lower():
             param.requires_grad = False
-            cpu_offload(param)
+            
+            # Optionally offload to CPU
+            if args.cpu_offload:
+                param.data = param.data.cpu()
         else:
             param.requires_grad = True
+            trainable_params += param.numel()
+            # Ensure trainable params are on GPU
+            if args.cpu_offload and param.device.type == 'cpu':
+                param.data = param.data.cuda()
+        total_params += param.numel()
+    
+    print(f"Trainable parameters: {trainable_params:,} / {total_params:,} ({100*trainable_params/total_params:.2f}%)")
 
     # Prepare the datasets
     print("Preparing datasets...")
