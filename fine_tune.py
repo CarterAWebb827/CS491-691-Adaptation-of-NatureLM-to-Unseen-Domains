@@ -61,9 +61,7 @@ def main():
     print("Loading the model...")
     model, _ = load_model_and_config(cfg_path=cfg_path, device=cfg.model.device)
 
-    # Enable gradient checkpointing to reduce memory
-    model.gradient_checkpointing_enable()
-    print("Gradient checkpointing enabled")
+    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:128'
 
     # Configure the LoRA
     model.lora = cfg.model.lora
