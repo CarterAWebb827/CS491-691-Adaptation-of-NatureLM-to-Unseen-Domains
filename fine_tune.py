@@ -1,13 +1,10 @@
 import os
 import gc
 from pathlib import Path
-from huggingface_hub import HfFolder, login
+from huggingface_hub import login
 import argparse
 
-token = HfFolder.get_token()
-login(token=token)
-del token
-gc.collect()
+login()
 
 current_dir = Path.cwd()
 naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
