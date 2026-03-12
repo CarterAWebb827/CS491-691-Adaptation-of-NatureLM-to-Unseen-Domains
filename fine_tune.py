@@ -5,22 +5,33 @@ from pathlib import Path
 from huggingface_hub import login
 import argparse
 
-# Add the NatureLMaudio directory to Python path
-current_dir = Path.cwd()
-naturelm_dir = current_dir / "NatureLMaudio"
-if str(naturelm_dir) not in sys.path:
-    sys.path.insert(0, str(naturelm_dir))
-    print(f"Added {naturelm_dir} to Python path")
+try:
+    import google.colab
+    IN_COLAB = True
+except ImportError:
+    IN_COLAB = False
+
+if IN_COLAB:
+    # Add the NatureLMaudio directory to Python path
+    current_dir = Path.cwd()
+    naturelm_dir = current_dir / "NatureLMaudio"
+    if str(naturelm_dir) not in sys.path:
+        sys.path.insert(0, str(naturelm_dir))
+        print(f"Added {naturelm_dir} to Python path")
+    
+    from NatureLM.config import Config
+    from NatureLM.infer import load_model_and_config
+    from NatureLM.runner import Runner
+else:
+    from NatureLMaudio.NatureLM.config import Config
+    from NatureLMaudio.NatureLM.infer import load_model_and_config
+    from NatureLMaudio.NatureLM.runner import Runner
 
 login()
 
 current_dir = Path.cwd()
 naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
 # sys.path.append(naturelm_dir) # Appending to system path allows us to do "import infer" instead of "import NatureLMaudio.infer"
-
-from NatureLM.config import Config
-from NatureLM.infer import load_model_and_config
-from NatureLM.runner import Runner
 
 from anura_dataset import AnuraDataset
 
@@ -51,15 +62,22 @@ def main():
     print("Loading the model...")
     model, _ = load_model_and_config(cfg_path=cfg_path, device=cfg.model.device)
 
+    # Enable gradient checkpointing to reduce memory
+    model.gradient_checkpointing_enable()
+    print("Gradient checkpointing enabled")
+
     # Configure the LoRA
     model.lora = cfg.model.lora
     model.lora_rank = cfg.model.lora_rank
     model.lora_alpha = cfg.model.lora_alpha
 
+    from accelerate import cpu_offload
+
     # Make sure only LoRA parameters are trainable
     for name, param in model.named_parameters():
         if "lora" not in name:
             param.requires_grad = False
+            cpu_offload(param)
         else:
             param.requires_grad = True
 
