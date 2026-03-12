@@ -1,8 +1,16 @@
 import os
 import gc
+import sys
 from pathlib import Path
 from huggingface_hub import login
 import argparse
+
+# Add the NatureLMaudio directory to Python path
+current_dir = Path.cwd()
+naturelm_dir = current_dir / "NatureLMaudio"
+if str(naturelm_dir) not in sys.path:
+    sys.path.insert(0, str(naturelm_dir))
+    print(f"Added {naturelm_dir} to Python path")
 
 login()
 
