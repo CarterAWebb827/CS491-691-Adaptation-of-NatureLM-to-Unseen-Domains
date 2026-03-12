@@ -18,9 +18,9 @@ current_dir = Path.cwd()
 naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
 # sys.path.append(naturelm_dir) # Appending to system path allows us to do "import infer" instead of "import NatureLMaudio.infer"
 
-from NatureLMaudio.NatureLM.config import Config
-from NatureLMaudio.NatureLM.infer import load_model_and_config
-from NatureLMaudio.NatureLM.runner import Runner
+from NatureLM.config import Config
+from NatureLM.infer import load_model_and_config
+from NatureLM.runner import Runner
 
 from anura_dataset import AnuraDataset
 
