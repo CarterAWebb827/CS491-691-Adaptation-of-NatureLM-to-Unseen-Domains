@@ -48,6 +48,7 @@ def main():
     parser.add_argument("--percentage", type=float, default=None, help="Designate the percentage of the full dataset used for fine-tuning")
     parser.add_argument("--naturelm_dir", type=str, default="NatureLMaudio", help="Designate the location of the NatureLM-audio directory")
     parser.add_argument("--data_dir", type=str, default="data/AnuraSet", help="Designate the location of the data directory to be used")
+    parser.add_argument("--cpu_offload", action="store_true", help="Enable CPU offloading")
     args = parser.parse_args()
 
     # Load our config
