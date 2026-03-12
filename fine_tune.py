@@ -53,7 +53,7 @@ def main():
 
     # Load our config
     if IN_COLAB:
-        cfg_path = "/configs/finetune_anura.yaml"
+        cfg_path = "configs/finetune_anura.yaml"
     else:
         cfg_path = "NatureLMaudio/configs/finetune_anura.yaml"
     
