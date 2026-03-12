@@ -1,5 +1,4 @@
 import os
-import gc
 import sys
 from pathlib import Path
 from huggingface_hub import login
