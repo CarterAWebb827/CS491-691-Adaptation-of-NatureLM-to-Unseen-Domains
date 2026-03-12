@@ -52,7 +52,11 @@ def main():
     args = parser.parse_args()
 
     # Load our config
-    cfg_path = "NatureLMaudio/configs/finetune_anura.yaml"
+    if IN_COLAB:
+        cfg_path = "/configs/finetune_anura.yaml"
+    else:
+        cfg_path = "NatureLMaudio/configs/finetune_anura.yaml"
+    
     cfg = Config.from_sources(cfg_path)
 
     # Create job ID for the runner naming convention
