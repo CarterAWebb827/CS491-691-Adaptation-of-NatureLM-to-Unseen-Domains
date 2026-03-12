@@ -8,7 +8,7 @@ import soundfile as sf
 from sklearn.model_selection import train_test_split
 import torchaudio.transforms as T
 
-from NatureLMaudio.NatureLM.dataset import collater
+from NatureLM.dataset import collater
 
 current_dir = Path.cwd()
 anura_dir = Path(os.path.join(current_dir, "data/AnuraSet"))
