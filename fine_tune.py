@@ -19,18 +19,20 @@ from NatureLMaudio.NatureLM.runner import Runner
 
 from anura_dataset import AnuraDataset
 
-def get_anura_datasets(config, percentage):
+def get_anura_datasets(config, percentage, data_dir):
     datasets = {}
 
-    datasets["train"] = AnuraDataset(config=config, percentage=percentage, split="train")
-    datasets["valid"] = AnuraDataset(config=config, percentage=percentage, split="valid")
-    datasets["test"] = AnuraDataset(config=config, percentage=percentage, split="test")
+    datasets["train"] = AnuraDataset(config=config, percentage=percentage, split="train", data_dir=data_dir)
+    datasets["valid"] = AnuraDataset(config=config, percentage=percentage, split="valid", data_dir=data_dir)
+    datasets["test"] = AnuraDataset(config=config, percentage=percentage, split="test", data_dir=data_dir)
 
     return datasets
 
 def main():
     parser = argparse.ArgumentParser(description="A script to fine-tune the NatureLM-audio model on frog and toad species classification")
     parser.add_argument("--percentage", type=float, default=None, help="Designate the percentage of the full dataset used for fine-tuning")
+    parser.add_argument("--naturelm_dir", type=str, default="NatureLMaudio", help="Designate the location of the NatureLM-audio directory")
+    parser.add_argument("--data_dir", type=str, default="data/AnuraSet", help="Designate the location of the data directory to be used")
     args = parser.parse_args()
 
     # Load our config
@@ -58,7 +60,7 @@ def main():
 
     # Prepare the datasets
     print("Preparing datasets...")
-    datasets = get_anura_datasets(cfg, args.percentage)
+    datasets = get_anura_datasets(cfg, args.percentage, args.data_dir)
 
     # Initialize the runner
     print("Initializing runner...")

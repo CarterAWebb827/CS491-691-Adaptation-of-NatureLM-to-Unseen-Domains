@@ -21,11 +21,11 @@ class AnuraDataset(Dataset):
     _label_columns = None
     _is_prepared = False
 
-    def __init__(self, config, percentage=None, split="train"):
+    def __init__(self, config, percentage=None, split="train", root_dir="data/AnuraSet"):
         self.config = config
         self.percentage = percentage
         self.split = split
-        self.root_dir = Path("data/AnuraSet")
+        self.root_dir = Path(root_dir)
         self.sample_rate = 16000
         self.max_length_samples = 10 * self.sample_rate
         self.audio_column = "fname"
