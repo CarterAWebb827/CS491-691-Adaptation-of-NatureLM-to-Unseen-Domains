@@ -106,7 +106,7 @@ class AnuraDataset(Dataset):
                 df["task"] = "species-multiple-detection"
             
             if "instruction" not in df.columns:
-                df["instruction"] = "<Audio><AudioHere></Audio> What are the scientific names for the species in the audio, if any?"
+                df["instruction"] = "<Audio><AudioHere></Audio> What are the scientific name(s) for the species in the audio, if any?"
 
             if "output" not in df.columns:
                 df["output"] = self._create_output_column(df, AnuraDataset._label_columns)
