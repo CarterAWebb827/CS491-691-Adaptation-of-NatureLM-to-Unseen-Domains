@@ -47,7 +47,7 @@ class RFCFrogDataset(Dataset):
     # Create a list of species IDs we care about
     FROG_SPECIES_IDS = list(range(11))  # 0 through 10
     
-    def __init__(self, config, split="train", root_dir="data/rfcx", use_fp=False):
+    def __init__(self, config, split="train", root_dir="data/RFCx", use_fp=False):
         """
         Args:
             config: Configuration object
@@ -64,9 +64,15 @@ class RFCFrogDataset(Dataset):
         self.collater = collater
         self.use_fp = use_fp
         
+        # Create mapping from species_id to scientific name (define BEFORE loading data)
+        self.id_to_species = {i: self.SPECIES_MAPPING[i][0] for i in range(11)}
+        
+        # Create label columns (scientific names) for species 0-10
+        self.label_columns = [self.SPECIES_MAPPING[i][0] for i in range(11)]
+        
         # Load the appropriate data based on split
         if split == "train":
-            self.df = self._load_train_data()
+            self.df = self._load_train_data(include_fp=False)
         elif split == "test":
             self.df = self._load_test_data()
         elif split == "train_all":
@@ -74,12 +80,6 @@ class RFCFrogDataset(Dataset):
             self.df = self._load_train_data(include_fp=True)
         else:
             raise ValueError(f"Split must be 'train', 'test', or 'train_all', got {split}")
-        
-        # Create label columns (scientific names) for species 0-10
-        self.label_columns = [self.SPECIES_MAPPING[i][0] for i in range(11)]
-        
-        # Create a mapping from species_id to scientific name
-        self.id_to_species = {i: self.SPECIES_MAPPING[i][0] for i in range(11)}
         
         print(f"Loaded {self.split} split: {len(self.df)} samples")
         print(f"Number of frog species: {len(self.label_columns)}")
@@ -127,7 +127,11 @@ class RFCFrogDataset(Dataset):
         df['instruction'] = "<Audio><AudioHere></Audio> What are the scientific name(s) for the species in the audio, if any?"
         
         # For FP samples, output should be "None" (no species present)
-        df['output'] = df.apply(lambda row: "None" if row['label_type'] == 'fp' else self.id_to_species[row['species_id']], axis=1)
+        # Use id_to_species mapping (now defined in __init__)
+        df['output'] = df.apply(
+            lambda row: "None" if row['label_type'] == 'fp' else self.id_to_species[row['species_id']], 
+            axis=1
+        )
         
         return df
     
@@ -184,7 +188,7 @@ class RFCFrogDataset(Dataset):
             if len(wav) < self.max_length_samples:
                 wav = np.pad(wav, (0, self.max_length_samples - len(wav)))
             else:
-                if self.split == "train":
+                if self.split == "train" or self.split == "train_all":
                     # Random crop for training
                     start = np.random.randint(0, len(wav) - self.max_length_samples)
                     wav = wav[start:start + self.max_length_samples]
@@ -253,7 +257,7 @@ class RFCTestDataset(Dataset):
     Special dataset for test submission that returns recording_id
     along with audio for prediction
     """
-    def __init__(self, config, root_dir="data/rfcx"):
+    def __init__(self, config, root_dir="data/RFCx"):
         self.config = config
         self.root_dir = Path(root_dir)
         self.sample_rate = 16000
