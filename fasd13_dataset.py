@@ -62,7 +62,7 @@ class FASD13Dataset(Dataset):
         self.config = config
         self.percentage = percentage
         self.split = split
-        self.root_dir = Path(getattr(config, "data_dir", root_dir)
+        self.root_dir = Path(getattr(config, "data_dir", root_dir))
         self.sample_rate = 16000
         self.max_length_samples = 10 * self.sample_rate
         self.audio_column = "fname"
