@@ -87,6 +87,9 @@ class FASD13Dataset(Dataset):
         print(f"Number of species: {len(self.label_columns)}")
     
     def _prepare_metadata(self):
+
+        print("Root directory:", self.root_dir)
+        print("Directories found:", [p.name for p in self.root_dir.iterdir() if p.is_dir()])
         #directories are /content/drive/FASD13/*
             #* is AS, CC, GS, HA, HG, HW, JS, KD, MS, PM, RG, RS, RW
         #files are .csv and .wav with matching names
