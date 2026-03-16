@@ -28,7 +28,7 @@ else:
     from NatureLMaudio.NatureLM.dataset import collater
 
 current_dir = Path.cwd()
-fasd13_dir = Path(os.path.join(current_dir, "data/MyDrive/FASD13"))
+fasd13_dir = Path(os.path.join(current_dir, "drive/MyDrive/FASD13"))
 
 class FASD13Dataset(Dataset):
     """Dataset class for FASD13 (species IDs 0-12)"""
@@ -58,7 +58,7 @@ class FASD13Dataset(Dataset):
     _label_columns = None
     _is_prepared = False
 
-    def __init__(self, config, percentage=None, split="train", root_dir="data/MyDrive/FASD13"):
+    def __init__(self, config, percentage=None, split="train", root_dir="drive/MyDrive/FASD13"):
         self.config = config
         self.percentage = percentage
         self.split = split
