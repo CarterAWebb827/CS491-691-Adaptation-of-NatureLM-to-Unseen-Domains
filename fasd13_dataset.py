@@ -28,7 +28,7 @@ else:
     from NatureLMaudio.NatureLM.dataset import collater
 
 current_dir = Path.cwd()
-fasd13_dir = Path(os.path.join(current_dir, "data/FASD13"))
+fasd13_dir = Path(os.path.join(current_dir, "data/MyDrive/FASD13"))
 
 class FASD13Dataset(Dataset):
     """Dataset class for FASD13 (species IDs 0-12)"""
@@ -58,11 +58,11 @@ class FASD13Dataset(Dataset):
     _label_columns = None
     _is_prepared = False
 
-    def __init__(self, config, percentage=None, split="train", root_dir="data/FASD13"):
+    def __init__(self, config, percentage=None, split="train", root_dir="data/MyDrive/FASD13"):
         self.config = config
         self.percentage = percentage
         self.split = split
-        self.root_dir = Path(root_dir)
+        self.root_dir = Path(getattr(config, "data_dir", root_dir)
         self.sample_rate = 16000
         self.max_length_samples = 10 * self.sample_rate
         self.audio_column = "fname"
@@ -87,9 +87,11 @@ class FASD13Dataset(Dataset):
         print(f"Number of species: {len(self.label_columns)}")
     
     def _prepare_metadata(self):
-
         print("Root directory:", self.root_dir)
-        print("Directories found:", [p.name for p in self.root_dir.iterdir() if p.is_dir()])
+        for _, (species_name, code) in self.COMMON_NAME_MAPPING.items():
+            dataset_dir = self.root_dir / code
+            print(f"{species_name} dir exists? {dataset_dir.exists()}")
+            print(f"CSV files: {list(dataset_dir.glob('*.csv'))}")
         #directories are /content/drive/FASD13/*
             #* is AS, CC, GS, HA, HG, HW, JS, KD, MS, PM, RG, RS, RW
         #files are .csv and .wav with matching names
@@ -109,6 +111,7 @@ class FASD13Dataset(Dataset):
         for _, (species_name, code) in self.COMMON_NAME_MAPPING.items():
             dataset_dir = self.root_dir / code
             if not dataset_dir.exists():
+                print(f"Warning: dataset directory not found: {dataset_dir}")
                 continue
 
             csv_files = list(dataset_dir.glob("*.csv"))
@@ -141,6 +144,8 @@ class FASD13Dataset(Dataset):
                         **label_dict
                     })
 
+        if len(rows) == 0:
+            raise ValueError(f"No data found in {self.root_dir}. Check your CSV paths and folder structure.")
         df = pd.DataFrame(rows)
 
         # Determine label columns
