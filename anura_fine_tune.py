@@ -126,8 +126,8 @@ def evaluate_model(model, eval_dataset, cfg_path, results_path, dataset_name="te
     Returns:
         dict: Evaluation results
     """
-    results_file = os.path.join(results_path, f"{dataset_name}_results.txt")
-    summary_file = os.path.join(results_path, f"{dataset_name}_evaluation_summary.txt")
+    results_file = os.path.join(results_path, f"fine_tune_{dataset_name}_results.txt")
+    summary_file = os.path.join(results_path, f"fine_tune_{dataset_name}_summary.txt")
     results = []
     
     # Use all data for evaluation (no subset)
@@ -206,6 +206,14 @@ def evaluate_model(model, eval_dataset, cfg_path, results_path, dataset_name="te
         while len(grouped_results) < len(eval_df):
             grouped_results.append([])
     
+    # Create a mapping of normalized species names for lookup
+    species_columns = eval_dataset.label_columns
+    # Create a normalized lookup dictionary (case-insensitive, trimmed)
+    species_lookup = {col.lower().strip(): col for col in species_columns}
+    
+    # Initialize metrics with original column names
+    species_metrics = {col: {'tp': 0, 'fp': 0, 'fn': 0} for col in species_columns}
+    
     # Evaluate predictions
     detailed_results = []
     total_correct_exact = 0
@@ -216,20 +224,25 @@ def evaluate_model(model, eval_dataset, cfg_path, results_path, dataset_name="te
     false_positives = 0
     false_negatives = 0
     
-    # Per-species metrics
-    species_metrics = {col: {'tp': 0, 'fp': 0, 'fn': 0} for col in eval_dataset.label_columns}
-    
     for idx, (row, window_results) in enumerate(zip(eval_df.iterrows(), grouped_results)):
         row_data = row[1]
         ground_truth_text = row_data["output"].strip().lower()
         
-        # Parse ground truth species
+        # Parse ground truth species with normalization
         if ground_truth_text == "none":
             ground_truth_species = set()
         else:
-            ground_truth_species = set([s.strip() for s in ground_truth_text.split(",")])
+            # Split and clean each species name
+            raw_species = [s.strip() for s in ground_truth_text.split(",")]
+            ground_truth_species = set()
+            for sp in raw_species:
+                sp_norm = sp.lower().strip()
+                if sp_norm in species_lookup:
+                    ground_truth_species.add(species_lookup[sp_norm])
+                else:
+                    print(f"Warning: Unknown ground truth species '{sp}' not found in label columns")
         
-        # Parse window predictions
+        # Parse window predictions with normalization
         window_preds = []
         for window_result in window_results:
             if window_result and window_result.strip():
@@ -246,8 +259,15 @@ def evaluate_model(model, eval_dataset, cfg_path, results_path, dataset_name="te
                     predictions = [prediction_text]
                 
                 for pred in predictions:
-                    if pred != "none" and pred not in window_preds:
-                        window_preds.append(pred)
+                    if pred != "none":
+                        # Try to match prediction to known species
+                        pred_norm = pred.lower().strip()
+                        if pred_norm in species_lookup:
+                            matched_species = species_lookup[pred_norm]
+                            if matched_species not in window_preds:
+                                window_preds.append(matched_species)
+                        else:
+                            print(f"Warning: Unknown predicted species '{pred}' not found in label columns")
         
         # For multi-label, we'll consider any prediction
         predicted_species = set(window_preds) if window_preds else set(["none"])
@@ -264,16 +284,18 @@ def evaluate_model(model, eval_dataset, cfg_path, results_path, dataset_name="te
             if any_correct:
                 total_correct_any += 1
         
-        # Per-species metrics
+        # Per-species metrics - only for valid species
         for species in ground_truth_species:
-            if species in predicted_species:
-                species_metrics[species]['tp'] += 1
-            else:
-                species_metrics[species]['fn'] += 1
+            if species in species_metrics:  # Check if species exists in metrics
+                if species in predicted_species:
+                    species_metrics[species]['tp'] += 1
+                else:
+                    species_metrics[species]['fn'] += 1
         
         for species in predicted_species - set(["none"]):
-            if species not in ground_truth_species:
-                species_metrics[species]['fp'] += 1
+            if species in species_metrics:  # Check if species exists in metrics
+                if species not in ground_truth_species:
+                    species_metrics[species]['fp'] += 1
         
         tp = len(predicted_species.intersection(ground_truth_species))
         fp = len(predicted_species - ground_truth_species - set(["none"]))
@@ -302,8 +324,9 @@ def evaluate_model(model, eval_dataset, cfg_path, results_path, dataset_name="te
             print(f"\n{'='*50}")
             print(f"Example {idx}:")
             print(f"Ground truth: {ground_truth_text}")
+            print(f"Ground truth species (normalized): {ground_truth_species}")
             print(f"Window predictions: {window_preds}")
-            print(f"Aggregated prediction: {', '.join(predicted_species - set(['none'])) if predicted_species - set(['none']) else 'none'}")
+            print(f"Predicted species (normalized): {predicted_species - set(['none'])}")
             print(f"Exact match: {exact_match}")
     
     # Calculate overall metrics
@@ -403,7 +426,7 @@ def main():
                        help="Percentage of data to use (for quick testing)")
     parser.add_argument("--skip_test_eval", action="store_true",
                        help="Skip test set evaluation after training")
-    parser.add_argument("--test_output", type=str, default="test_predictions.csv",
+    parser.add_argument("--test_output", type=str, default="fine_tune_predictions.csv",
                        help="Output file for test predictions")
     args = parser.parse_args()
 
@@ -463,18 +486,23 @@ def main():
     print("\nPreparing Anura datasets...")
     datasets = get_anura_datasets(cfg, args.data_dir, use_percentage=args.use_percentage)
 
-    # Initialize the runner
-    print("\nInitializing runner...")
-    runner = Runner(cfg, model, datasets, job_id)
+    # Load the best model
+    results_path = out_path
+    best_model_path = os.path.join(results_path, "checkpoint_best.pth")
 
-    # Start training
-    print("\nStarting training...")
-    runner.train()
+    if not os.path.exists(best_model_path):
+        # Initialize the runner
+        print("\nInitializing runner...")
+        runner = Runner(cfg, model, datasets, job_id)
 
-    # Clear memory after training
-    del runner
-    gc.collect()
-    clear_gpu_memory()
+        # Start training
+        print("\nStarting training...")
+        runner.train()
+
+        # Clear memory after training
+        del runner
+        gc.collect()
+        clear_gpu_memory()
 
     # ================================================================================= #
     # Evaluation on test set
@@ -483,19 +511,12 @@ def main():
         print("EVALUATING FINE-TUNED MODEL ON TEST SET")
         print("="*50)
         
-        # Load the best model
-        results_path = out_path
-        best_model_path = os.path.join(results_path, "checkpoint_best.pth")
-
         if os.path.exists(best_model_path):
             print(f"Loading best model from {best_model_path}")
             
             # Load the base model first (if not already loaded)
             if 'model' not in locals() or model is None:
                 model, _ = load_model_and_config(cfg_path=cfg_path, device=cfg.model.device)
-
-            del _
-            gc.collect()
             
             # Load checkpoint
             checkpoint = torch.load(best_model_path, map_location=cfg.model.device, weights_only=False)

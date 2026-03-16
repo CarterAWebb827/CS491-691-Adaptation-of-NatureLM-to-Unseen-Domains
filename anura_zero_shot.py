@@ -3,7 +3,6 @@ from pathlib import Path
 from huggingface_hub import login
 import argparse
 import pandas as pd
-from datetime import datetime
 
 # Handle imports based on environment
 current_dir = Path.cwd()
@@ -55,10 +54,9 @@ def evaluate_zero_shot(dataset, config, results_dir, dataset_name="test", cache_
     results_path = Path(results_dir)
     results_path.mkdir(parents=True, exist_ok=True)
     
-    # Create timestamp for unique filename
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    results_file = results_path / f"zero_shot_{dataset_name}_results_{timestamp}.txt"
-    summary_file = results_path / f"zero_shot_{dataset_name}_summary_{timestamp}.txt"
+    # Create unique filename
+    results_file = results_path / f"zero_shot_{dataset_name}_results.txt"
+    summary_file = results_path / f"zero_shot_{dataset_name}_summary.txt"
     
     print(f"\nEvaluating zero-shot on {dataset_name} set: {len(dataset)} samples")
     
@@ -117,7 +115,7 @@ def evaluate_zero_shot(dataset, config, results_dir, dataset_name="test", cache_
                 f.write("\n".join(results) + "\n")
             print(f"Results cached to: {cache_file}")
     
-    # Save raw results with timestamp
+    # Save raw results
     with open(results_file, 'w') as f:
         f.write("\n".join(results) + "\n")
     print(f"Raw results saved to: {results_file}")
@@ -155,10 +153,15 @@ def evaluate_zero_shot(dataset, config, results_dir, dataset_name="test", cache_
     true_positives = 0
     false_positives = 0
     false_negatives = 0
-    
-    # Per-species metrics
-    species_metrics = {col: {'tp': 0, 'fp': 0, 'fn': 0} for col in dataset.label_columns}
-    
+
+    # Create a mapping of normalized species names for lookup
+    species_columns = dataset.label_columns
+    # Create a normalized lookup dictionary
+    species_lookup = {col.lower().strip(): col for col in species_columns}
+
+    # Initialize metrics with original column names
+    species_metrics = {col: {'tp': 0, 'fp': 0, 'fn': 0} for col in species_columns}
+
     for idx, (row, window_results) in enumerate(zip(eval_df.iterrows(), grouped_results)):
         row_data = row[1]
         ground_truth_text = row_data["output"].strip().lower()
@@ -167,7 +170,16 @@ def evaluate_zero_shot(dataset, config, results_dir, dataset_name="test", cache_
         if ground_truth_text == "none":
             ground_truth_species = set()
         else:
-            ground_truth_species = set([s.strip() for s in ground_truth_text.split(",")])
+            # Split and clean each species name
+            raw_species = [s.strip() for s in ground_truth_text.split(",")]
+            ground_truth_species = set()
+            for sp in raw_species:
+                # Find matching column name
+                sp_norm = sp.lower().strip()
+                if sp_norm in species_lookup:
+                    ground_truth_species.add(species_lookup[sp_norm])
+                else:
+                    print(f"Warning: Unknown species '{sp}' not found in label columns")
         
         # Parse window predictions
         window_preds = []
@@ -186,15 +198,20 @@ def evaluate_zero_shot(dataset, config, results_dir, dataset_name="test", cache_
                     predictions = [prediction_text]
                 
                 for pred in predictions:
-                    if pred != "none" and pred not in window_preds:
-                        window_preds.append(pred)
+                    if pred != "none":
+                        # Try to match prediction to known species
+                        pred_norm = pred.lower().strip()
+                        if pred_norm in species_lookup:
+                            matched_species = species_lookup[pred_norm]
+                            if matched_species not in window_preds:
+                                window_preds.append(matched_species)
         
         # For multi-label, we'll consider any prediction
         predicted_species = set(window_preds) if window_preds else set(["none"])
         
         # Calculate metrics
         exact_match = (predicted_species == ground_truth_species or 
-                      (predicted_species == set(["none"]) and ground_truth_species == set()))
+                    (predicted_species == set(["none"]) and ground_truth_species == set()))
         if exact_match:
             total_correct_exact += 1
         
@@ -204,16 +221,18 @@ def evaluate_zero_shot(dataset, config, results_dir, dataset_name="test", cache_
             if any_correct:
                 total_correct_any += 1
         
-        # Per-species metrics
+        # Per-species metrics - only for valid species in ground_truth_species
         for species in ground_truth_species:
-            if species in predicted_species:
-                species_metrics[species]['tp'] += 1
-            else:
-                species_metrics[species]['fn'] += 1
+            if species in species_metrics:  # Check if species exists in metrics
+                if species in predicted_species:
+                    species_metrics[species]['tp'] += 1
+                else:
+                    species_metrics[species]['fn'] += 1
         
         for species in predicted_species - set(["none"]):
-            if species not in ground_truth_species:
-                species_metrics[species]['fp'] += 1
+            if species in species_metrics:  # Check if species exists in metrics
+                if species not in ground_truth_species:
+                    species_metrics[species]['fp'] += 1
         
         tp = len(predicted_species.intersection(ground_truth_species))
         fp = len(predicted_species - ground_truth_species - set(["none"]))
@@ -242,8 +261,9 @@ def evaluate_zero_shot(dataset, config, results_dir, dataset_name="test", cache_
             print(f"\n{'='*50}")
             print(f"Example {idx}:")
             print(f"Ground truth: {ground_truth_text}")
-            print(f"Window predictions ({len(window_preds)} windows): {window_preds}")
-            print(f"Aggregated prediction: {', '.join(predicted_species - set(['none'])) if predicted_species - set(['none']) else 'none'}")
+            print(f"Ground truth species (normalized): {ground_truth_species}")
+            print(f"Window predictions: {window_preds}")
+            print(f"Predicted species (normalized): {predicted_species - set(['none'])}")
             print(f"Exact match: {exact_match}")
     
     # Calculate overall metrics
@@ -315,7 +335,7 @@ def evaluate_zero_shot(dataset, config, results_dir, dataset_name="test", cache_
     
     # Save detailed predictions
     predictions_df = pd.DataFrame(detailed_results)
-    predictions_file = results_path / f"zero_shot_{dataset_name}_predictions_{timestamp}.csv"
+    predictions_file = results_path / f"zero_shot_{dataset_name}_predictions.csv"
     predictions_df.to_csv(predictions_file, index=False)
     print(f"Detailed predictions saved to: {predictions_file}")
     
@@ -340,7 +360,7 @@ def main():
     parser = argparse.ArgumentParser(description="Zero-shot evaluation on Anura frog dataset")
     parser.add_argument("--data_root", type=str, default="data/AnuraSet", 
                        help="Root directory containing Anura data")
-    parser.add_argument("--results_dir", type=str, default="outputs/naturelm_zeroshot_anura",
+    parser.add_argument("--results_dir", type=str, default="outputs/anura_zeroshot",
                        help="Directory to save results")
     parser.add_argument("--no_cache", action="store_true",
                        help="Disable result caching")
@@ -348,8 +368,6 @@ def main():
                        help="Number of example predictions to print")
     parser.add_argument("--use_percentage", type=float, default=None,
                        help="Percentage of data to use (for quick testing)")
-    parser.add_argument("--evaluate_test", action="store_true",
-                       help="Evaluate on test set (default: evaluate on validation set)")
     parser.add_argument("--output_file", type=str, default=None,
                        help="Output file for predictions (optional)")
     args = parser.parse_args()
@@ -358,17 +376,10 @@ def main():
     cfg_path = "NatureLMaudio/configs/inference.yml"
     cfg = Config.from_sources(cfg_path)
     
-    # Determine which split to evaluate
-    if args.evaluate_test:
-        split_name = "test"
-        print("\n" + "="*50)
-        print("EVALUATING ZERO-SHOT ON TEST SET")
-        print("="*50)
-    else:
-        split_name = "valid"
-        print("\n" + "="*50)
-        print("EVALUATING ZERO-SHOT ON VALIDATION SET")
-        print("="*50)
+    split_name = "test"
+    print("\n" + "="*50)
+    print("EVALUATING ZERO-SHOT ON TEST SET")
+    print("="*50)
     
     # Load the dataset
     print(f"Loading Anura {split_name} dataset...")
