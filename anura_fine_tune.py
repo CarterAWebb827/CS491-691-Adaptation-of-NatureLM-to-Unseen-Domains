@@ -7,28 +7,42 @@ import argparse
 import pandas as pd
 import torch
 import torch.cuda as cuda
+import json
+from typing import List, Dict, Any
 
-try:
-    import google.colab
-    IN_COLAB = True
-except ImportError:
-    IN_COLAB = False
+ON_VISTA = os.path.exists('/home1') or 'TACC' in os.environ.get('HOSTNAME', '')
 
-if IN_COLAB:
-    # Add the NatureLMaudio directory to Python path
-    current_dir = Path.cwd()
-    naturelm_dir = current_dir / "NatureLMaudio"
-    if str(naturelm_dir) not in sys.path:
-        sys.path.insert(0, str(naturelm_dir))
-        print(f"Added {naturelm_dir} to Python path")
+if ON_VISTA:
+    WORK_DIR = os.environ.get('WORK', '/work')
+    SCRATCH_DIR = os.environ.get('SCRATCH', '/scratch')
+    NATURELM_DIR = os.path.join(WORK_DIR, 'NatureLMaudio')
+    
+    if str(NATURELM_DIR) not in sys.path:
+        sys.path.insert(0, str(NATURELM_DIR))
     
     from NatureLM.config import Config
-    from NatureLM.infer import load_model_and_config, Pipeline
+    from NatureLM.infer import load_model_and_config
     from NatureLM.runner import Runner
 else:
-    from NatureLMaudio.NatureLM.config import Config
-    from NatureLMaudio.NatureLM.infer import load_model_and_config, Pipeline
-    from NatureLMaudio.NatureLM.runner import Runner
+    # Original import logic
+    try:
+        import google.colab
+        IN_COLAB = True
+    except ImportError:
+        IN_COLAB = False
+    
+    if IN_COLAB:
+        current_dir = Path.cwd()
+        naturelm_dir = current_dir / "NatureLMaudio"
+        if str(naturelm_dir) not in sys.path:
+            sys.path.insert(0, str(naturelm_dir))
+        from NatureLM.config import Config
+        from NatureLM.infer import load_model_and_config
+        from NatureLM.runner import Runner
+    else:
+        from NatureLMaudio.NatureLM.config import Config
+        from NatureLMaudio.NatureLM.infer import load_model_and_config
+        from NatureLMaudio.NatureLM.runner import Runner
 
 login()
 
@@ -503,7 +517,7 @@ def main():
         del runner
         gc.collect()
         clear_gpu_memory()
-
+    
     # ================================================================================= #
     # Evaluation on test set
     if not args.skip_test_eval:
