@@ -20,7 +20,7 @@ except ImportError:
 
 if IN_COLAB:
     current_dir = Path.cwd()
-    naturelm_dir = Path(os.path.join(current_dir, "drive/MyDrive/NatureLMaudio"))
+    naturelm_dir = Path("/content/drive/MyDrive/NatureLMaudio")
     naturelm_src_dir = naturelm_dir / "src"
     if str(naturelm_src_dir) not in sys.path:
         sys.path.insert(0, str(naturelm_src_dir))
@@ -31,7 +31,10 @@ else:
     from NatureLMaudio.NatureLM.dataset import collater
 
 current_dir = Path.cwd()
-noaa_dir = Path(os.path.join(current_dir, "drive/MyDrive/RightWhaleData"))
+if IN_COLAB:
+    noaa_dir = Path("/content/drive/MyDrive/RightWhaleData")
+else:
+    noaa_dir = Path(os.path.join(current_dir, "drive/MyDrive/RightWhaleData"))
 
 
 class RightWhaleDataset(Dataset):
