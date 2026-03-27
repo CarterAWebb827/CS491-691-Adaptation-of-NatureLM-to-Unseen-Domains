@@ -16,8 +16,9 @@ noaa_dir = Path(os.path.join(current_dir, "drive/MyDrive/RightWhaleData"))
 
 if IN_COLAB:
     naturelm_dir = Path(os.path.join(current_dir, "drive/MyDrive/NatureLMaudio"))
-    if str(naturelm_dir) not in sys.path:
-        sys.path.insert(0, str(naturelm_dir))
+    naturelm_src_dir = naturelm_dir / "src"
+    if str(naturelm_src_dir) not in sys.path:
+        sys.path.insert(0, str(naturelm_src_dir))
 
     from NatureLM.config import Config
     from NatureLM.infer import Pipeline
@@ -33,6 +34,7 @@ def main():
     cfg_path = str(Path(os.path.join(naturelm_dir, "configs", "inference.yml")))
 
     print("Loading the dataset...")
+    #force rebuild of metadata_extra.csv
     RightWhaleDataset._is_prepared = False
     RightWhaleDataset._train_df = None
     RightWhaleDataset._valid_df = None

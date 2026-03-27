@@ -21,9 +21,10 @@ except ImportError:
 if IN_COLAB:
     current_dir = Path.cwd()
     naturelm_dir = Path(os.path.join(current_dir, "drive/MyDrive/NatureLMaudio"))
-    if str(naturelm_dir) not in sys.path:
-        sys.path.insert(0, str(naturelm_dir))
-        print(f"Added {naturelm_dir} to Python path")
+    naturelm_src_dir = naturelm_dir / "src"
+    if str(naturelm_src_dir) not in sys.path:
+        sys.path.insert(0, str(naturelm_src_dir))
+        print(f"Added {naturelm_src_dir} to Python path")
 
     from NatureLM.dataset import collater
 else:
