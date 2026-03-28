@@ -14,19 +14,18 @@ except ImportError:
 current_dir = Path.cwd()
 
 if IN_COLAB:
-    naturelm_dir = Path("/content/drive/MyDrive/NatureLMaudio")
-    naturelm_src_dir = naturelm_dir / "src"
-    if str(naturelm_src_dir) not in sys.path:
-        sys.path.insert(0, str(naturelm_src_dir))
+    naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
+    if str(naturelm_dir) not in sys.path:
+        sys.path.insert(0, str(naturelm_dir))
 
     from NatureLM.config import Config
     from NatureLM.infer import Pipeline
-    noaa_dir = Path("/content/drive/MyDrive/RightWhaleData")
 else:
     naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
     from NatureLMaudio.NatureLM.config import Config
     from NatureLMaudio.NatureLM.infer import Pipeline
-    noaa_dir = Path(os.path.join(current_dir, "drive/MyDrive/RightWhaleData"))
+
+noaa_dir = Path(os.path.join(current_dir, "drive/MyDrive/RightWhaleData"))
 
 from noaa_dataset import RightWhaleDataset
 
