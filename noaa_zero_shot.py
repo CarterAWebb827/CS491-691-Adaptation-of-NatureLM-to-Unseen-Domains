@@ -7,11 +7,9 @@ from huggingface_hub import login
 import numpy as np
 import pandas as pd
 
+# Handle imports based on environment
 current_dir = Path.cwd()
-
 naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
-
-print(str(naturelm_dir))
 
 from NatureLMaudio.NatureLM.config import Config
 from NatureLMaudio.NatureLM.infer import Pipeline
@@ -35,6 +33,7 @@ def main():
 
     cfg_path = "NatureLMaudio/configs/inference.yml"
     cfg = Config.from_sources(cfg_path)
+    
     noaa_dataset = RightWhaleDataset(cfg, split="test", root_dir=noaa_dir)
     noaa_df = noaa_dataset.df.reset_index(drop=True).copy()
 
