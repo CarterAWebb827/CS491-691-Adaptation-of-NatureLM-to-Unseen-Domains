@@ -31,9 +31,9 @@ def main():
     RightWhaleDataset._test_df = None
     RightWhaleDataset._label_columns = None
 
-    cfg_path = "NatureLMaudio/configs/inference.yml"
+    cfg_path = "/CS491-691-Adaptation-of-NatureLM-to-Unseen-Domains/NatureLMaudio/configs/inference.yml"
     cfg = Config.from_sources(cfg_path)
-    
+
     noaa_dataset = RightWhaleDataset(cfg, split="test", root_dir=noaa_dir)
     noaa_df = noaa_dataset.df.reset_index(drop=True).copy()
 
