@@ -5,31 +5,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-try:
-    import google.colab
-    IN_COLAB = True
-except ImportError:
-    IN_COLAB = False
-
 current_dir = Path.cwd()
 
-if IN_COLAB:
-    naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
-    if str(naturelm_dir) not in sys.path:
-        sys.path.insert(0, str(naturelm_dir))
+naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
 
-    from NatureLM.config import Config
-    from NatureLM.infer import Pipeline
-else:
-    naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
-    from NatureLMaudio.NatureLM.config import Config
-    from NatureLMaudio.NatureLM.infer import Pipeline
+from NatureLMaudio.NatureLM.config import Config
+from NatureLMaudio.NatureLM.infer import Pipeline
 
-noaa_dir = _resolve_existing_path(
-    current_dir / "RightWhaleData",
-    current_dir / "drive/MyDrive/RightWhaleData",
-    Path("/content/drive/MyDrive/RightWhaleData"),
-)
+noaa_dir = Path(os.path.join(current_dir, "drive/MyDrive/RightWhaleData"))
 
 from noaa_dataset import RightWhaleDataset
 
