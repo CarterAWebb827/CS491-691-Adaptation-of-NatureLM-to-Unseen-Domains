@@ -25,10 +25,6 @@ token = input("Paste huggingface token here: ")
 login(token=token)
 
 def main():
-    print(str(naturelm_dir))
-    cfg_path = str(Path(os.path.join(naturelm_dir, "configs", "inference.yml")))
-    print(cfg_path)
-
     print("Loading the dataset...")
     #force rebuild of metadata_extra.csv
     RightWhaleDataset._is_prepared = False
@@ -37,6 +33,7 @@ def main():
     RightWhaleDataset._test_df = None
     RightWhaleDataset._label_columns = None
 
+    cfg_path = "NatureLMaudio/configs/inference.yml"
     cfg = Config.from_sources(cfg_path)
     noaa_dataset = RightWhaleDataset(cfg, split="test", root_dir=noaa_dir)
     noaa_df = noaa_dataset.df.reset_index(drop=True).copy()
