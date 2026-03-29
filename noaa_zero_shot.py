@@ -18,8 +18,9 @@ noaa_dir = Path(os.path.join(current_dir, "drive/MyDrive/RightWhaleData"))
 
 from noaa_dataset import RightWhaleDataset
 
-login()
+token = input("Paste huggingface token here: ")
 
+login(token=token)
 
 def main():
     cfg_path = str(Path(os.path.join(naturelm_dir, "configs", "inference.yml")))
