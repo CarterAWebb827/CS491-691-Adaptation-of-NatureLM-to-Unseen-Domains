@@ -2,6 +2,8 @@ import os
 import sys
 from pathlib import Path
 
+from huggingface_hub import login
+
 import numpy as np
 import pandas as pd
 
