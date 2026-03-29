@@ -25,7 +25,9 @@ token = input("Paste huggingface token here: ")
 login(token=token)
 
 def main():
+    print(str(naturelm_dir))
     cfg_path = str(Path(os.path.join(naturelm_dir, "configs", "inference.yml")))
+    print(cfg_path)
 
     print("Loading the dataset...")
     #force rebuild of metadata_extra.csv
