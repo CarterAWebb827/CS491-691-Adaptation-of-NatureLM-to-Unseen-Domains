@@ -11,6 +11,8 @@ current_dir = Path.cwd()
 
 naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
 
+print(str(naturelm_dir))
+
 from NatureLMaudio.NatureLM.config import Config
 from NatureLMaudio.NatureLM.infer import Pipeline
 
