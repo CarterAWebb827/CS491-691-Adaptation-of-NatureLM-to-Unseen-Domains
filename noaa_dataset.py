@@ -18,9 +18,21 @@ try:
 except ImportError:
     IN_COLAB = False
 
+
+def _resolve_existing_path(*candidates):
+    for candidate in candidates:
+        path = Path(candidate)
+        if path.exists():
+            return path
+    return Path(candidates[0])
+
+
 if IN_COLAB:
     current_dir = Path.cwd()
-    naturelm_dir = current_dir / "NatureLMaudio"
+    naturelm_dir = _resolve_existing_path(
+        current_dir / "NatureLMaudio",
+        Path("/content/drive/MyDrive/NatureLMaudio"),
+    )
     if str(naturelm_dir) not in sys.path:
         sys.path.insert(0, str(naturelm_dir))
         print(f"Added {naturelm_dir} to Python path")
@@ -30,7 +42,11 @@ else:
     from NatureLMaudio.NatureLM.dataset import collater
 
 current_dir = Path.cwd()
-noaa_dir = Path(os.path.join(current_dir, "drive/MyDrive/RightWhaleData"))
+noaa_dir = _resolve_existing_path(
+    current_dir / "RightWhaleData",
+    current_dir / "drive/MyDrive/RightWhaleData",
+    Path("/content/drive/MyDrive/RightWhaleData"),
+)
 
 
 class RightWhaleDataset(Dataset):
