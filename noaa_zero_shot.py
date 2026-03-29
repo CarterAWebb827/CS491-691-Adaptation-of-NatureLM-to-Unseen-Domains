@@ -11,32 +11,17 @@ try:
 except ImportError:
     IN_COLAB = False
 
-
-def _resolve_existing_path(*candidates):
-    for candidate in candidates:
-        path = Path(candidate)
-        if path.exists():
-            return path
-    return Path(candidates[0])
-
-
 current_dir = Path.cwd()
 
 if IN_COLAB:
-    naturelm_dir = _resolve_existing_path(
-        current_dir / "NatureLMaudio",
-        Path("/content/drive/MyDrive/NatureLMaudio"),
-    )
+    naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
     if str(naturelm_dir) not in sys.path:
         sys.path.insert(0, str(naturelm_dir))
 
     from NatureLM.config import Config
     from NatureLM.infer import Pipeline
 else:
-    naturelm_dir = _resolve_existing_path(
-        current_dir / "NatureLMaudio",
-        Path("/content/drive/MyDrive/NatureLMaudio"),
-    )
+    naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
     from NatureLMaudio.NatureLM.config import Config
     from NatureLMaudio.NatureLM.infer import Pipeline
 
@@ -47,6 +32,8 @@ noaa_dir = _resolve_existing_path(
 )
 
 from noaa_dataset import RightWhaleDataset
+
+login()
 
 
 def main():
@@ -69,13 +56,16 @@ def main():
 
     print("Preparing clip audio...")
     clip_audio = []
+    count = 0
     for _, row in noaa_df.iterrows():
+        count += 1
         audio = noaa_dataset.load_audio(
             row["audio_path"],
             start_time=row["clip_start_seconds"],
             end_time=row["clip_end_seconds"],
         )
         clip_audio.append(audio.numpy())
+        print (f"Audio count {count} / {noaa_df.rows.count}")
 
     print("Running the pipeline...")
     results_path = os.path.join(current_dir, "outputs/naturelm_zeroshot_noaa/")
