@@ -51,7 +51,7 @@ def main():
             end_time=row["clip_end_seconds"],
         )
         clip_audio.append(audio.numpy())
-        print (f"Audio count {count} / {noaa_df.rows.count}")
+        print (f"Audio count {count}")
 
     print("Running the pipeline...")
     results_path = os.path.join(current_dir, "outputs/naturelm_zeroshot_noaa/")
