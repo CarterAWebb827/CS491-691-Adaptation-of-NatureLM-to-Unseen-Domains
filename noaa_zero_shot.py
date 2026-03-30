@@ -22,6 +22,24 @@ token = input("Paste huggingface token here: ")
 
 login(token=token)
 
+def majority_vote(predictions):
+    """Simple majority vote function"""
+    if not predictions:
+        return "none"
+    
+    counts = {}
+    for pred in predictions:
+        counts[pred] = counts.get(pred, 0) + 1
+    
+    max_count = -1
+    most_common = None
+    for pred, count in counts.items():
+        if count > max_count:
+            max_count = count
+            most_common = pred
+    
+    return most_common
+
 def is_right_whale(prediction):
     prediction = prediction.strip().lower()
     return (
@@ -31,12 +49,6 @@ def is_right_whale(prediction):
 
 def main():
     print("Loading the dataset...")
-    #force rebuild of metadata_extra.csv
-    RightWhaleDataset._is_prepared = False
-    RightWhaleDataset._train_df = None
-    RightWhaleDataset._valid_df = None
-    RightWhaleDataset._test_df = None
-    RightWhaleDataset._label_columns = None
 
     cfg_path = "/content/drive/MyDrive/NatureLMaudio/configs/inference.yml"
     cfg = Config.from_sources(cfg_path)
@@ -63,7 +75,7 @@ def main():
     print("Running the pipeline...")
     results_path = os.path.join(current_dir, "outputs/naturelm_zeroshot_noaa/")
     os.makedirs(results_path, exist_ok=True)
-    results_file = os.path.join(results_path, "results.txt")
+    results_file = os.path.join(results_path, "zero_shot_results.txt")
     results = []
 
     if not os.path.exists(results_file):
