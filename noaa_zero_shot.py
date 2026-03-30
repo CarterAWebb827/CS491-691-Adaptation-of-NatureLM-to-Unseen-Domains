@@ -14,7 +14,7 @@ naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
 from NatureLMaudio.NatureLM.config import Config
 from NatureLMaudio.NatureLM.infer import Pipeline
 
-noaa_dir = Path(os.path.join(current_dir, "drive/MyDrive/RightWhaleData"))
+noaa_dir = Path("/content/drive/MyDrive/RightWhaleData")
 
 from noaa_dataset import RightWhaleDataset
 
