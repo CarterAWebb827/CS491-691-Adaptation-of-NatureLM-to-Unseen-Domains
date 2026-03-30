@@ -53,7 +53,11 @@ def main():
     cfg_path = "/content/drive/MyDrive/NatureLMaudio/configs/inference.yml"
     cfg = Config.from_sources(cfg_path)
 
-    noaa_dataset = RightWhaleDataset(cfg, split="test", root_dir=noaa_dir)
+    noaa_train_dataset = RightWhaleDataset(cfg, split="train", root_dir=noaa_dir)
+    noaa_valid_dataset = RightWhaleDataset(cfg, split="valid", root_dir=noaa_dir)
+    noaa_test_dataset = RightWhaleDataset(cfg, split="test", root_dir=noaa_dir)
+    
+    noaa_dataset = noaa_train_dataset
     noaa_df = noaa_dataset.df.reset_index(drop=True).copy()
 
     print(f"NOAA DataFrame shape: {noaa_df.shape}")

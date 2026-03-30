@@ -49,6 +49,7 @@ class RightWhaleDataset(Dataset):
         self.clip_duration_seconds = 10
         self.collater = collater
 
+        #create the dataframes and label columns and mark is prepared
         if not RightWhaleDataset._is_prepared:
             self._prepare_metadata()
 
