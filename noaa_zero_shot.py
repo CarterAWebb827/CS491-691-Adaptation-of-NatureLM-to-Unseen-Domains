@@ -1,9 +1,9 @@
 import os
 import sys
 from pathlib import Path
-
 from huggingface_hub import login
-
+import argparse
+import torch
 import numpy as np
 import pandas as pd
 
@@ -21,6 +21,13 @@ from noaa_dataset import RightWhaleDataset
 token = input("Paste huggingface token here: ")
 
 login(token=token)
+
+def is_right_whale(prediction):
+    prediction = prediction.strip().lower()
+    return (
+        "right whale" in prediction
+        or "north atlantic right whale" in prediction
+    )
 
 def main():
     print("Loading the dataset...")
@@ -76,13 +83,6 @@ def main():
 
     print(f"Number of results: {len(results)}")
     print(f"Number of samples: {len(noaa_df)}")
-
-    def is_right_whale(prediction):
-        prediction = prediction.strip().lower()
-        return (
-            "right whale" in prediction
-            or "north atlantic right whale" in prediction
-        )
 
     total_correct = 0
     confidence_correct = {}
