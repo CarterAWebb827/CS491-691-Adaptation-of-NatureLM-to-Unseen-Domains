@@ -220,5 +220,8 @@ process_one_parquet.py
 main_downloader.py
 beans_zero_dataset.py
 outputs/pika*
+
+#dataset
+RightWhaleData/
 outputs/
 vista*
