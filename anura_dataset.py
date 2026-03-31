@@ -9,23 +9,36 @@ import soundfile as sf
 from sklearn.model_selection import train_test_split
 import torchaudio.transforms as T
 
-try:
-    import google.colab
-    IN_COLAB = True
-except ImportError:
-    IN_COLAB = False
+# Determine if running on cluster
+ON_VISTA = os.path.exists('/home1') or 'TACC' in os.environ.get('HOSTNAME', '')
 
-if IN_COLAB:
-    # Add the NatureLMaudio directory to Python path
-    current_dir = Path.cwd()
-    naturelm_dir = current_dir / "NatureLMaudio"
-    if str(naturelm_dir) not in sys.path:
-        sys.path.insert(0, str(naturelm_dir))
-        print(f"Added {naturelm_dir} to Python path")
+if ON_VISTA:
+    # On Vista, use WORK directory
+    WORK_DIR = os.environ.get('WORK', '/work')
+    NATURELM_DIR = os.path.join(WORK_DIR, 'NatureLMaudio')
+    
+    # Add to path
+    if str(NATURELM_DIR) not in sys.path:
+        sys.path.insert(0, str(NATURELM_DIR))
+        print(f"Added {NATURELM_DIR} to Python path")
     
     from NatureLM.dataset import collater
 else:
-    from NatureLMaudio.NatureLM.dataset import collater
+    # Colab/local path logic
+    try:
+        import google.colab
+        IN_COLAB = True
+    except ImportError:
+        IN_COLAB = False
+    
+    if IN_COLAB:
+        current_dir = Path.cwd()
+        naturelm_dir = current_dir / "NatureLMaudio"
+        if str(naturelm_dir) not in sys.path:
+            sys.path.insert(0, str(naturelm_dir))
+        from NatureLM.dataset import collater
+    else:
+        from NatureLMaudio.NatureLM.dataset import collater
 
 current_dir = Path.cwd()
 anura_dir = Path(os.path.join(current_dir, "data/AnuraSet"))
@@ -38,7 +51,15 @@ class AnuraDataset(Dataset):
     _label_columns = None
     _is_prepared = False
 
-    def __init__(self, config, percentage=None, split="train", root_dir="data/AnuraSet"):
+    def __init__(self, config, percentage=None, split="train", root_dir="data/AnuraSet", use_predefined_splits=True):
+        """
+        Args:
+            config: Configuration object
+            percentage: Percentage of data to use (for quick testing)
+            split: Which split to load ("train", "valid", or "test")
+            root_dir: Root directory containing Anura data
+            use_predefined_splits: If True, use split column from metadata. If False, create random splits.
+        """
         self.config = config
         self.percentage = percentage
         self.split = split
@@ -48,18 +69,19 @@ class AnuraDataset(Dataset):
         self.audio_column = "fname"
         self.station_column = "site"
         self.collater = collater
+        self.use_predefined_splits = use_predefined_splits
 
         # Prepare the metadata
         if not AnuraDataset._is_prepared:
             self._prepare_metadata()
 
-        # Assign the appropriate splits
-        if self.split == "train":
-            self.df = AnuraDataset._train_df
-        elif self.split == "valid":
-            self.df = AnuraDataset._valid_df
-        elif self.split == "test":
-            self.df = AnuraDataset._test_df
+        # Assign the appropriate splits based on method
+        if use_predefined_splits:
+            # Use pre-defined split column
+            self._load_predefined_splits()
+        else:
+            # Use random splits (legacy method)
+            self._load_random_splits()
 
         self.label_columns = AnuraDataset._label_columns
 
@@ -96,52 +118,156 @@ class AnuraDataset(Dataset):
         # Store the labels at the class level
         AnuraDataset._label_columns = label_columns
 
-        # Add the audio_path and/or task column if we dont have it
-        if "audio_path" not in df.columns or "task" not in df.columns or "instruction" not in df.columns:
-            if "audio_path" not in df.columns:
-                df["audio_path"] = (str(self.root_dir) + "/audio/" + df[self.station_column] + "/" + df[self.audio_column] + "_" + df['min_t'].astype(str) + "_" + df['max_t'].astype(str) + ".wav")
-            
-            if "task" not in df.columns:
-                # df["task"] = "species-sci-options-classification"
-                df["task"] = "species-multiple-detection"
-            
-            if "instruction" not in df.columns:
-                df["instruction"] = "<Audio><AudioHere></Audio> What are the scientific name(s) for the species in the audio, if any?"
+        # Add the audio_path and other columns if we don't have them
+        needs_update = False
+        
+        if "audio_path" not in df.columns:
+            df["audio_path"] = (str(self.root_dir) + "/audio/" + df[self.station_column] + "/" + df[self.audio_column] + "_" + df['min_t'].astype(str) + "_" + df['max_t'].astype(str) + ".wav")
+            needs_update = True
+        
+        if "task" not in df.columns:
+            df["task"] = "species-multiple-detection"
+            needs_update = True
+        
+        if "instruction" not in df.columns:
+            df["instruction"] = "<Audio><AudioHere></Audio> What are the scientific name(s) for the species in the audio, if any?"
+            needs_update = True
 
-            if "output" not in df.columns:
-                df["output"] = self._create_output_column(df, AnuraDataset._label_columns)
+        if "output" not in df.columns:
+            df["output"] = self._create_output_column(df, AnuraDataset._label_columns)
+            needs_update = True
 
+        # Add split column if it doesn't exist (for first-time setup)
+        if "split" not in df.columns:
+            print("No 'split' column found. Creating predefined splits...")
+            df = self._create_predefined_splits(df)
+            needs_update = True
+
+        if needs_update:
             self._save_metadata_extra(df)
 
-        if self.percentage is not None:
-            # Create startification labels (presence/absence)
-            # Stratification means that our train/valid/test splits will contain the same proportion of each class label as the original dataset (no skew)
-            current_stratify = df[AnuraDataset._label_columns].sum(axis=1) > 0
-            _, df= train_test_split(df, test_size=self.percentage, random_state=42, stratify=current_stratify)
+        # Store the full dataframe at class level for split reference
+        AnuraDataset._full_df = df
 
-        # Create stratification labels for the potentially reduced dataframe to avoid size mismatch error
+    def _create_predefined_splits(self, df):
+        """
+        Create a 'split' column with predefined train/valid/test assignments.
+        This ensures consistent splits across runs.
+        """
+        # Create stratification labels (presence/absence of any species)
+        stratify_labels = df[AnuraDataset._label_columns].sum(axis=1) > 0
+        
+        # First split: 80% train+val, 20% test
+        train_val_df, test_df = train_test_split(
+            df, 
+            test_size=0.2,  # 20% for test
+            random_state=42, 
+            stratify=stratify_labels
+        )
+        
+        # Second split: from the 80%, take 75% for train, 25% for validation
+        # This results in: 60% train, 20% validation, 20% test
+        train_val_stratify = train_val_df[AnuraDataset._label_columns].sum(axis=1) > 0
+        train_df, val_df = train_test_split(
+            train_val_df, 
+            test_size=0.25,  # 25% of train_val = 20% of total
+            random_state=42, 
+            stratify=train_val_stratify
+        )
+        
+        # Add split column to each dataframe
+        train_df = train_df.copy()
+        val_df = val_df.copy()
+        test_df = test_df.copy()
+        
+        train_df['split'] = 'train'
+        val_df['split'] = 'valid'
+        test_df['split'] = 'test'
+        
+        # Combine back
+        df_with_splits = pd.concat([train_df, val_df, test_df], axis=0)
+        
+        print("="*30)
+        print("Predefined splits created and added to metadata:")
+        print(f"\tTrain: {len(train_df)} samples ({len(train_df)/len(df)*100:.1f}%)")
+        print(f"\tValid: {len(val_df)} samples ({len(val_df)/len(df)*100:.1f}%)")
+        print(f"\tTest: {len(test_df)} samples ({len(test_df)/len(df)*100:.1f}%)")
+        print("="*30)
+        
+        return df_with_splits
+
+    def _load_predefined_splits(self):
+        """Load data based on pre-defined split column"""
+        df = AnuraDataset._full_df
+        
+        # Apply percentage reduction if specified
+        if self.percentage is not None:
+            # For each split, take a random subset
+            split_df = df[df['split'] == self.split].copy()
+            
+            # Stratify by presence/absence when sampling
+            stratify_labels = split_df[AnuraDataset._label_columns].sum(axis=1) > 0
+            
+            # Calculate sample size
+            sample_size = int(len(split_df) * self.percentage)
+            
+            # Sample while maintaining class distribution
+            _, sampled_df = train_test_split(
+                split_df,
+                test_size=sample_size,
+                random_state=42,
+                stratify=stratify_labels
+            )
+            self.df = sampled_df
+        else:
+            # Use the full split
+            self.df = df[df['split'] == self.split].copy()
+
+    def _load_random_splits(self):
+        """Legacy method: create random splits on the fly"""
+        df = AnuraDataset._full_df
+        
+        if self.percentage is not None:
+            # Create stratification labels for percentage reduction
+            current_stratify = df[AnuraDataset._label_columns].sum(axis=1) > 0
+            _, df = train_test_split(
+                df, 
+                test_size=self.percentage, 
+                random_state=42, 
+                stratify=current_stratify
+            )
+
+        # Create stratification labels for the potentially reduced dataframe
         stratify_labels = df[AnuraDataset._label_columns].sum(axis=1) > 0
 
         # Split the data
-        # First, split between training/validation and test data
-        train_val_df, test_df = train_test_split(df, test_size=0.1, random_state=42, stratify=stratify_labels)
+        train_val_df, test_df = train_test_split(
+            df, 
+            test_size=0.1, 
+            random_state=42, 
+            stratify=stratify_labels
+        )
         
-        # Next, split between the training and validation data
         train_val_stratify = train_val_df[AnuraDataset._label_columns].sum(axis=1) > 0
-        train_df, val_df = train_test_split(train_val_df, test_size=0.2, random_state=42, stratify=train_val_stratify)
+        train_df, val_df = train_test_split(
+            train_val_df, 
+            test_size=0.2, 
+            random_state=42, 
+            stratify=train_val_stratify
+        )
 
         # Store splits at the class level
         AnuraDataset._train_df = train_df
         AnuraDataset._valid_df = val_df
         AnuraDataset._test_df = test_df
-        AnuraDataset._is_prepared = True
 
-        print("="*30)
-        print("Dataset splits created:")
-        print(f"\tTrain: {len(train_df)} samples")
-        print(f"\tValid: {len(val_df)} samples")
-        print(f"\tTest: {len(test_df)} samples")
-        print("="*30)
+        # Assign the requested split
+        if self.split == "train":
+            self.df = AnuraDataset._train_df
+        elif self.split == "valid":
+            self.df = AnuraDataset._valid_df
+        elif self.split == "test":
+            self.df = AnuraDataset._test_df
     
     def _create_output_column(self, df, label_columns):
         outputs = []
@@ -162,11 +288,12 @@ class AnuraDataset(Dataset):
     def _save_metadata_extra(self, df):
         output_path = self.root_dir / "metadata_extra.csv"
         df.to_csv(output_path, index=False)
+        print(f"Saved updated metadata to {output_path}")
 
     def load_audio(self, audio_path):
         """Load audio for fine-tuning and preprocess it"""
         try:
-            # Load audo file
+            # Load audio file
             wav, sr = sf.read(audio_path)
 
             # Convert to mono if we are in stereo
@@ -177,7 +304,6 @@ class AnuraDataset(Dataset):
             if sr != self.sample_rate:
                 wav_tensor = torch.from_numpy(wav).float()
                 resampler = T.Resample(sr, self.sample_rate)
-                sr = self.sample_rate
                 wav_tensor = resampler(wav_tensor.unsqueeze(0)).squeeze(0)
                 wav = wav_tensor.numpy()
             else:
@@ -185,7 +311,7 @@ class AnuraDataset(Dataset):
 
             # Pad or truncate
             if len(wav) < self.max_length_samples:
-                wav = np.pad(wav, (0, self.max_length_samples - len(wav),))
+                wav = np.pad(wav, (0, self.max_length_samples - len(wav)))
             else:
                 if self.split == "train":
                     # Use random cropping for training
@@ -199,7 +325,7 @@ class AnuraDataset(Dataset):
             return torch.from_numpy(wav).float()
         except Exception as e:
             print(f"Error loading {audio_path}: {e}")
-            return torch.zeros(self.max_length_samples, dtype=np.float32)
+            return torch.zeros(self.max_length_samples, dtype=torch.float32)
         
     def get_labels(self, row):
         """Extract the species label"""
@@ -220,11 +346,6 @@ class AnuraDataset(Dataset):
         row = self.df.iloc[index]
 
         # Get the audio path
-        # audio_filename = row[self.audio_column]
-        # station = row[self.station_column]
-        # min_t = row["min_t"]
-        # max_t = row["max_t"]
-        # audio_path = Path(f"{self.root_dir}/audio/{station}/{audio_filename}_{min_t}_{max_t}.wav")
         audio_path = row["audio_path"]
 
         # Load in the audio
