@@ -102,11 +102,11 @@ def main():
 
         predicted_right_whale = is_right_whale(prediction) #bool
 
-        is_correct = (ground_truth is "right whale") and (predicted_right_whale is True)
+        is_correct = (ground_truth == "right whale") and (predicted_right_whale == True)
        
         # "not detecting something" when ground truth is "not detecting something" is correct (maybe)
         if is_correct == False:
-            if ground_truth is None and predicted_right_whale is False:
+            if ground_truth == "" and predicted_right_whale == False:
                 is_correct = True
 
         if is_correct:
