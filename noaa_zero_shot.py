@@ -42,7 +42,7 @@ def main():
     noaa_test_dataset = RightWhaleDataset(cfg, split="test", root_dir=noaa_dir)
     
     #dataset splits are 0.1 test, 0.18 valid, 0.72 train per noaa_dataset.py
-    noaa_dataset = noaa_train_dataset
+    noaa_dataset = noaa_test_dataset #making sure it works using smallest available split
     noaa_df = noaa_dataset.df.reset_index(drop=True).copy()
 
     print(f"NOAA DataFrame shape: {noaa_df.shape}")
