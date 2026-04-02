@@ -170,7 +170,7 @@ class RightWhaleDataset(Dataset):
     def _select_log_file(self, data_dir):
         log_files = sorted(
             path for path in data_dir.glob(f"*{self.LOG_SUFFIX}")
-            if "depricated" not in path.name.lower()
+            if "deprecated" not in path.name.lower()
         )
         if not log_files:
             return None
@@ -280,20 +280,17 @@ class RightWhaleDataset(Dataset):
         for entry in wav_index:
             if entry["start_time"] <= detection_end <= entry["end_time"]:
                 return entry
-
         return None
 
     def _sample_dataframe(self, df, percentage):
         if percentage <= 0 or percentage >= 1:
             return df.reset_index(drop=True)
-
         _, sampled_df = train_test_split(df, test_size=percentage, random_state=42)
         return sampled_df.reset_index(drop=True)
 
     def _split_dataframe(self, df):
         train_val_df, test_df = train_test_split(df, test_size=0.1, random_state=42)
         train_df, val_df = train_test_split(train_val_df, test_size=0.2, random_state=42)
-
         return (
             train_df.reset_index(drop=True),
             val_df.reset_index(drop=True),
@@ -319,34 +316,33 @@ class RightWhaleDataset(Dataset):
                 print(f"Warning: audio file not found: {audio_path}")
                 return torch.zeros(self.max_length_samples, dtype=torch.float32)
 
+            #set start/stop times
             info = sf.info(audio_path)
             frame_start = 0 if start_time is None else max(0, int(float(start_time) * info.samplerate))
             frame_stop = info.frames if end_time is None else min(info.frames, int(float(end_time) * info.samplerate))
-
             if frame_stop <= frame_start:
                 frame_stop = min(info.frames, frame_start + int(self.clip_duration_seconds * info.samplerate))
 
             wav, sr = sf.read(audio_path, start=frame_start, stop=frame_stop)
 
+            #reduce to mono
             if wav.ndim > 1:
                 wav = wav.mean(axis=1)
 
+            #set sample rate to 16000
             if sr != self.sample_rate:
                 wav_tensor = torch.from_numpy(wav).float()
                 resampler = T.Resample(sr, self.sample_rate)
                 wav_tensor = resampler(wav_tensor.unsqueeze(0)).squeeze(0)
                 wav = wav_tensor.numpy()
 
+            #pad if needed
             if len(wav) < self.max_length_samples:
                 wav = np.pad(wav, (0, self.max_length_samples - len(wav)))
+            #cut to size if needed
             else:
-                if self.split == "train":
-                    max_offset = len(wav) - self.max_length_samples
-                    start = np.random.randint(0, max_offset + 1) if max_offset > 0 else 0
-                    wav = wav[start:start + self.max_length_samples]
-                else:
-                    start = max(0, (len(wav) - self.max_length_samples) // 2)
-                    wav = wav[start:start + self.max_length_samples]
+                start = max(0, (len(wav) - self.max_length_samples) // 2)
+                wav = wav[start:start + self.max_length_samples]
 
             return torch.from_numpy(wav).float()
         except Exception as exc:

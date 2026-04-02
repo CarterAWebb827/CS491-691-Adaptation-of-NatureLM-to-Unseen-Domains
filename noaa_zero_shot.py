@@ -22,30 +22,14 @@ token = input("Paste huggingface token here: ")
 
 login(token=token)
 
-def majority_vote(predictions):
-    """Simple majority vote function"""
-    if not predictions:
-        return "none"
-    
-    counts = {}
-    for pred in predictions:
-        counts[pred] = counts.get(pred, 0) + 1
-    
-    max_count = -1
-    most_common = None
-    for pred, count in counts.items():
-        if count > max_count:
-            max_count = count
-            most_common = pred
-    
-    return most_common
-
 def is_right_whale(prediction):
+    #drop to lowercase
     prediction = prediction.strip().lower()
-    return (
-        "right whale" in prediction
-        or "north atlantic right whale" in prediction
-    )
+    #common names and species names for right whales
+    if "right whale" in prediction or "north atlantic right whale" in prediction or "north pacific right whale" in prediction or "southern right whale" in prediction or "eubalaena glacialis" in prediction or "eubalaena japonica" in prediction or "eubalaena australis" in prediction:
+        return True
+    else:
+        return False
 
 def main():
     print("Loading the dataset...")
@@ -57,7 +41,8 @@ def main():
     noaa_valid_dataset = RightWhaleDataset(cfg, split="valid", root_dir=noaa_dir)
     noaa_test_dataset = RightWhaleDataset(cfg, split="test", root_dir=noaa_dir)
     
-    noaa_dataset = noaa_train_dataset
+    #dataset splits are 0.1 test, 0.18 valid, 0.72 train per noaa_dataset.py
+    noaa_dataset = noaa_test_dataset #making sure it works using smallest available split
     noaa_df = noaa_dataset.df.reset_index(drop=True).copy()
 
     print(f"NOAA DataFrame shape: {noaa_df.shape}")
@@ -77,7 +62,7 @@ def main():
         print (f"Audio count {count}")
 
     print("Running the pipeline...")
-    results_path = os.path.join(current_dir, "outputs/naturelm_zeroshot_noaa/")
+    results_path = "/content/drive/MyDrive/RightWhaleResults"
     os.makedirs(results_path, exist_ok=True)
     results_file = os.path.join(results_path, "zero_shot_results.txt")
     results = []
@@ -115,8 +100,14 @@ def main():
         else:
             prediction = ""
 
-        predicted_right_whale = is_right_whale(prediction)
-        is_correct = predicted_right_whale and ground_truth == "right whale"
+        predicted_right_whale = is_right_whale(prediction) #bool
+
+        is_correct = (ground_truth == "right whale") and (predicted_right_whale == True)
+       
+        # "not detecting something" when ground truth is "not detecting something" is correct (maybe)
+        if is_correct == False:
+            if ground_truth == "" and predicted_right_whale == False:
+                is_correct = True
 
         if is_correct:
             total_correct += 1
@@ -150,6 +141,7 @@ def main():
             "raw_result": results,
         }
     )
+    #save to somewhere that is easily accessible, results_path is just in my google drive
     detailed_df.to_csv(os.path.join(results_path, "detailed_results.csv"), index=False)
 
 
