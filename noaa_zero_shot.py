@@ -126,7 +126,7 @@ def main():
         else:
             prediction = ""
 
-        predicted_whale_call = is_whale_call(prediction) #check for 'yes' or 'no'
+        #predicted_whale_call = is_whale_call(prediction) #check for 'yes' or 'no'
         predicted_right_whale = is_right_whale(prediction) #check for species/common names
 
         whale_call_predicted = ("right whale" in output) and (predicted_whale_call)
