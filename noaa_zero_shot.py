@@ -129,15 +129,15 @@ def main():
         #predicted_whale_call = is_whale_call(prediction) #check for 'yes' or 'no'
         predicted_right_whale = is_right_whale(prediction) #check for species/common names
 
-        whale_call_predicted = ("right whale" in output) and (predicted_whale_call)
+        #whale_call_predicted = ("right whale" in output) and (predicted_whale_call)
         right_whale_predicted = ("right whale" in output) and (predicted_right_whale)
 
-        if whale_call_predicted or right_whale_predicted:
+        if right_whale_predicted: #or whale call predicted
             total_correct += 1
             confidence_correct[confidence] = confidence_correct.get(confidence, 0) + 1
 
         prediction_right_whales.append(right_whale_predicted)
-        prediction_whale_calls.append(whale_call_predicted)
+        #prediction_whale_calls.append(whale_call_predicted)
 
         if index < 5:
             print(f"\nExample {index}:")
@@ -146,7 +146,7 @@ def main():
             print(f"Detection confidence: {confidence}")
             print(f"Prediction output: {prediction}")
             print(f"Prediction by species name: {predicted_right_whale}")
-            print(f"Prediction by whale call: {predicted_whale_call}")
+            #print(f"Prediction by whale call: {predicted_whale_call}")
             print(f"")
 
     accuracy = (total_correct / len(noaa_df)) * 100
@@ -171,7 +171,7 @@ def main():
             "detection_confidence": noaa_df["detection_confidence"],
             "ground_truth": noaa_df["output"],
             "prediction_right_whales": prediction_right_whales,
-            "prediction_whale_calls": prediction_whale_calls,
+            #"prediction_whale_calls": prediction_whale_calls,
             "raw_result": results,
         }
     )
