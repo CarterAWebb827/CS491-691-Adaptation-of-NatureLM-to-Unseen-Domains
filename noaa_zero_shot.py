@@ -100,15 +100,15 @@ def main():
     prediction_whale_calls = []
     
     for index, result in enumerate(results):
-        output = noaa_df["output"].strip().lower()
-        confidence = noaa_df["detection_confidence"]
-        audio_path = noaa_df["audio_path"]
-        chunk_start = noaa_df["chunk_start_time"]
-        chunk_end = noaa_df["chunk_end_time"]
-        clip_start = noaa_df["clip_start_seconds"]
-        clip_end = noaa_df["clip_end_seconds"]
-        detection_start = noaa_df["detection_start_time"]
-        detection_end = noaa_df["detection_end_time"]
+        output = noaa_df.iloc[index]["output"].strip().lower()
+        confidence = noaa_df.iloc[index]["detection_confidence"]
+        audio_path = noaa_df.iloc[index]["audio_path"]
+        chunk_start = noaa_df.iloc[index]["chunk_start_time"]
+        chunk_end = noaa_df.iloc[index]["chunk_end_time"]
+        clip_start = noaa_df.iloc[index]["clip_start_seconds"]
+        clip_end = noaa_df.iloc[index]["clip_end_seconds"]
+        detection_start = noaa_df.iloc[index]["detection_start_time"]
+        detection_end = noaa_df.iloc[index]["detection_end_time"]
 
         confidence_total[confidence] = confidence_total.get(confidence, 0) + 1
 
