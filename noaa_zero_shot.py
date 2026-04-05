@@ -156,10 +156,10 @@ def main():
     detailed_df = pd.DataFrame(
         {
             "audio_path": noaa_df["audio_path"],
-            "chunk_start_time": = noaa_df["chunk_start_time"],
-            "chunk_end_time": = noaa_df["chunk_end_time"],
-            "detection_start_time": = noaa_df["detection_start_time"],
-            "detection_end_time": = noaa_df["detection_end_time"],
+            "chunk_start_time": noaa_df["chunk_start_time"],
+            "chunk_end_time": noaa_df["chunk_end_time"],
+            "detection_start_time": noaa_df["detection_start_time"],
+            "detection_end_time": noaa_df["detection_end_time"],
             "clip_start_seconds": noaa_df["clip_start_seconds"],
             "clip_end_seconds": noaa_df["clip_end_seconds"],
             "detection_confidence": noaa_df["detection_confidence"],
