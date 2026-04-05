@@ -31,6 +31,14 @@ def is_right_whale(prediction):
     else:
         return False
 
+def is_whale_call(prediction):
+    #drop to lowercase
+    prediction = prediction.strip().lower()
+    if "yes" in prediction or "true" in prediction:
+        return True
+    else:
+        return False
+
 def main():
     print("Loading the dataset...")
 
@@ -67,11 +75,15 @@ def main():
     results_file = os.path.join(results_path, "zero_shot_results.txt")
     results = []
 
-    if not os.path.exists(results_file):
+    if True:
         print("Loading the pipeline...")
         infer_pipe = Pipeline(cfg_path=cfg_path)
 
-        results = infer_pipe(clip_audio, noaa_df["instruction"])
+        results = infer_pipe(clip_audio, list(noaa_df["instruction"]))
+
+        print(f"clip_audio: {len(clip_audio)}")
+        print(f"instructions: {len(noaa_df['instruction'])}")
+        print(f"results: {len(results)}")
 
         with open(results_file, "w") as handle:
             handle.write("\n".join(results) + "\n")
@@ -88,38 +100,54 @@ def main():
     total_correct = 0
     confidence_correct = {}
     confidence_total = {}
+    prediction_right_whales = []
+    prediction_whale_calls = []
+    
+
 
     for index, result in enumerate(results):
-        ground_truth = noaa_df.iloc[index]["output"].strip().lower()
+        output = noaa_df.iloc[index]["output"].strip().lower()
         confidence = noaa_df.iloc[index]["detection_confidence"]
+        audio_path = noaa_df.iloc[index]["audio_path"]
+        chunk_start = noaa_df.iloc[index]["chunk_start_time"]
+        chunk_end = noaa_df.iloc[index]["chunk_end_time"]
+        clip_start = noaa_df.iloc[index]["clip_start_seconds"]
+        clip_end = noaa_df.iloc[index]["clip_end_seconds"]
+        detection_start = noaa_df.iloc[index]["detection_start_time"]
+        detection_end = noaa_df.iloc[index]["detection_end_time"]
 
         confidence_total[confidence] = confidence_total.get(confidence, 0) + 1
 
         if result != "":
-            prediction = result.split(":", 1)[1].strip().lower() if ":" in result else result.strip().lower()
+            if ":" in result:
+                prediction = result.split(":", 1)[1].strip().lower()
+            else:
+                prediction = result.strip().lower()
         else:
             prediction = ""
 
-        predicted_right_whale = is_right_whale(prediction) #bool
+        predicted_whale_call = is_whale_call(prediction) #check for 'yes' or 'no'
+        predicted_right_whale = is_right_whale(prediction) #check for species/common names
 
-        is_correct = (ground_truth == "right whale") and (predicted_right_whale == True)
-       
-        # "not detecting something" when ground truth is "not detecting something" is correct (maybe)
-        if is_correct == False:
-            if ground_truth == "" and predicted_right_whale == False:
-                is_correct = True
+        whale_call_predicted = ("right whale" in output) and (predicted_whale_call)
+        right_whale_predicted = ("right whale" in output) and (predicted_right_whale)
 
-        if is_correct:
+        if whale_call_predicted or right_whale_predicted:
             total_correct += 1
             confidence_correct[confidence] = confidence_correct.get(confidence, 0) + 1
 
+        prediction_right_whales.append(right_whale_predicted)
+        prediction_whale_calls.append(whale_call_predicted)
+
         if index < 5:
             print(f"\nExample {index}:")
-            print(f"Ground truth: {ground_truth}")
+            print(f"Audio Path: {audio_path}:")
+            print(f"Ground Truth: {output}")
             print(f"Detection confidence: {confidence}")
-            print(f"Prediction: {prediction}")
-            print(f"Predicted right whale: {predicted_right_whale}")
-            print(f"Correct: {is_correct}")
+            print(f"Prediction output: {prediction}")
+            print(f"Prediction by species name: {predicted_right_whale}")
+            print(f"Prediction by whale call: {predicted_whale_call}")
+            print(f"")
 
     accuracy = (total_correct / len(noaa_df)) * 100
     print(f"\nZero-Shot Accuracy: {accuracy}")
@@ -134,10 +162,16 @@ def main():
     detailed_df = pd.DataFrame(
         {
             "audio_path": noaa_df["audio_path"],
+            "chunk_start_time": noaa_df["chunk_start_time"],
+            "chunk_end_time": noaa_df["chunk_end_time"],
+            "detection_start_time": noaa_df["detection_start_time"],
+            "detection_end_time": noaa_df["detection_end_time"],
             "clip_start_seconds": noaa_df["clip_start_seconds"],
             "clip_end_seconds": noaa_df["clip_end_seconds"],
             "detection_confidence": noaa_df["detection_confidence"],
             "ground_truth": noaa_df["output"],
+            "prediction_right_whales": prediction_right_whales,
+            "prediction_whale_calls": prediction_whale_calls,
             "raw_result": results,
         }
     )

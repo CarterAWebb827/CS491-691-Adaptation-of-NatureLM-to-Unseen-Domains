@@ -139,7 +139,7 @@ class RightWhaleDataset(Dataset):
         df = pd.DataFrame(rows)
         df[self.SPECIES_NAME] = 1
         df["task"] = "species-multiple-detection"
-        df["instruction"] = "<Audio><AudioHere></Audio> What are the common name(s) for the species in the audio, if any?"
+        df["instruction"] = "<Audio><AudioHere></Audio> Which of these, if any, are present in the audio recording? North Atlantic Right Whale, North Pacific Right Whale, Southern Right Whale, None"
         df["output"] = self._create_output_column(df, [self.SPECIES_NAME])
         df["dataset_name"] = "noaa-right-whale"
 
@@ -253,8 +253,9 @@ class RightWhaleDataset(Dataset):
                 f"Skipping detection in {log_path.name}: "
                 f"no source wav covers {detection_start.isoformat()} -> {detection_end.isoformat()}"
             )
-            return None
+            return None #do not add to rows
 
+        #split the audio based on start time
         clip_start_seconds = max(0.0, (detection_start - wav_entry["start_time"]).total_seconds())
         clip_end_seconds = max(clip_start_seconds, (detection_end - wav_entry["start_time"]).total_seconds())
 
@@ -276,6 +277,7 @@ class RightWhaleDataset(Dataset):
             "high_freq_hz": float(row["High.Freq..Hz."]),
         }
 
+    #runs when loading the .wav file in _build_record_from_detection, if None then does not add wav to rows
     def _find_wav_for_detection(self, detection_start, detection_end, wav_index):
         for entry in wav_index:
             if entry["start_time"] <= detection_end <= entry["end_time"]:
@@ -341,6 +343,7 @@ class RightWhaleDataset(Dataset):
                 wav = np.pad(wav, (0, self.max_length_samples - len(wav)))
             #cut to size if needed
             else:
+                #place time in middle of existing audio chunk
                 start = max(0, (len(wav) - self.max_length_samples) // 2)
                 wav = wav[start:start + self.max_length_samples]
 
