@@ -138,7 +138,7 @@ class RightWhaleDataset(Dataset):
 
         df = pd.DataFrame(rows)
         df[self.SPECIES_NAME] = 1
-        df["task"] = "species-single-detection"
+        df["task"] = "species-multiple-detection"
         df["instruction"] = "<Audio><AudioHere></Audio> Which of these, if any, are present in the audio recording? North Atlantic Right Whale, North Pacific Right Whale, Southern Right Whale, None"
         df["output"] = self._create_output_column(df, [self.SPECIES_NAME])
         df["dataset_name"] = "noaa-right-whale"
