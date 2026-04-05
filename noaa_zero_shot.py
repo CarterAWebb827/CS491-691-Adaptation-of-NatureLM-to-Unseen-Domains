@@ -75,11 +75,15 @@ def main():
     results_file = os.path.join(results_path, "zero_shot_results.txt")
     results = []
 
-    if not os.path.exists(results_file):
+    if True:
         print("Loading the pipeline...")
         infer_pipe = Pipeline(cfg_path=cfg_path)
 
-        results = infer_pipe(clip_audio, noaa_df["instruction"])
+        results = infer_pipe(clip_audio, list(noaa_df["instruction"]))
+
+        print(f"clip_audio: {len(clip_audio)}")
+        print(f"instructions: {len(noaa_df['instruction'])}")
+        print(f"results: {len(results)}")
 
         with open(results_file, "w") as handle:
             handle.write("\n".join(results) + "\n")
@@ -99,6 +103,8 @@ def main():
     prediction_right_whales = []
     prediction_whale_calls = []
     
+
+
     for index, result in enumerate(results):
         output = noaa_df.iloc[index]["output"].strip().lower()
         confidence = noaa_df.iloc[index]["detection_confidence"]
@@ -164,8 +170,8 @@ def main():
             "clip_end_seconds": noaa_df["clip_end_seconds"],
             "detection_confidence": noaa_df["detection_confidence"],
             "ground_truth": noaa_df["output"],
-            "prediction_right_whales": right_whale_predicted,
-            "prediction_whale_calls": whale_call_predicted,
+            "prediction_right_whales": prediction_right_whales,
+            "prediction_whale_calls": prediction_whale_calls,
             "raw_result": results,
         }
     )
