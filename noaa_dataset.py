@@ -32,6 +32,8 @@ class RightWhaleDataset(Dataset):
     SPECIES_NAME = "Right Whale"
     RIWH_CODE = "RIWH"
     LOG_SUFFIX = "_upcall-detection-log.csv"
+    METADATA_CACHE_NAME = "metadata_chunks_10s_v2.csv"
+    CHUNK_DURATION_SECONDS = 10
 
     _train_df = None
     _valid_df = None
@@ -46,7 +48,7 @@ class RightWhaleDataset(Dataset):
         self.root_dir = Path(getattr(config, "data_dir", root_dir))
         self.sample_rate = 16000
         self.max_length_samples = 10 * self.sample_rate
-        self.clip_duration_seconds = 10
+        self.clip_duration_seconds = self.CHUNK_DURATION_SECONDS
         self.collater = collater
 
         #create the dataframes and label columns and mark is prepared
@@ -74,7 +76,7 @@ class RightWhaleDataset(Dataset):
                 "Mount Google Drive in Colab before creating the dataset."
             )
 
-        metadata_cache = self.root_dir / "metadata_extra.csv"
+        metadata_cache = self.root_dir / self.METADATA_CACHE_NAME
         if metadata_cache.exists():
             df = pd.read_csv(metadata_cache)
             for column in ["detection_start_time", "detection_end_time", "chunk_start_time", "chunk_end_time"]:
@@ -128,67 +130,43 @@ class RightWhaleDataset(Dataset):
             detections_df = pd.read_csv(log_path)
             detections_df = self._normalize_detection_log(detections_df)
 
-            for _, row in detections_df.iterrows():
-                record = self._build_record_from_detection(row, dataset_dir, log_path, wav_index)
-                if record is not None:
-                    rows.append(record)
+            rows.extend(self._build_chunk_records(dataset_dir, log_path, wav_index, detections_df))
 
         if not rows:
             raise ValueError(f"No usable NOAA rows found in {self.root_dir}")
 
         df = pd.DataFrame(rows)
-        df[self.SPECIES_NAME] = 1
+        df[self.SPECIES_NAME] = (df["matching_detections"] > 0).astype(int)
         df["task"] = "species-multiple-detection"
         df["instruction"] = "<Audio><AudioHere></Audio> Which of these, if any, are present in the audio recording? North Atlantic Right Whale, North Pacific Right Whale, Southern Right Whale"
         df["output"] = self._create_output_column(df, [self.SPECIES_NAME])
         df["dataset_name"] = "noaa-right-whale"
 
-        ordered_columns = [
-            "audio_path",
-            "clip_start_seconds",
-            "clip_end_seconds",
-            "detection_start_time",
-            "detection_end_time",
-            "chunk_start_time",
-            "chunk_end_time",
-            "task",
-            "instruction",
-            "output",
-            self.SPECIES_NAME,
-            "dataset_name",
-            "source_csv",
-            "dataset_dir",
-            "selection",
-            "species_code",
-            "detection_confidence",
-            "channel",
-            "low_freq_hz",
-            "high_freq_hz",
-        ]
+        ordered_columns = ["audio_path", "clip_start_seconds", "clip_end_seconds", "chunk_start_time", "chunk_end_time", "detection_start_time", "detection_end_time", "matching_detections"]
+        ordered_columns += ["task", "instruction", "output", self.SPECIES_NAME, "dataset_name", "source_csv", "dataset_dir", "selection", "species_code"]
+        ordered_columns += ["detection_confidence", "channel", "low_freq_hz", "high_freq_hz"]
         return df[ordered_columns]
 
     def _select_log_file(self, data_dir):
-        log_files = sorted(
-            path for path in data_dir.glob(f"*{self.LOG_SUFFIX}")
-            if "deprecated" not in path.name.lower()
-        )
+        log_files = []
+
+        for path in sorted(data_dir.glob(f"*{self.LOG_SUFFIX}")):
+            if "deprecated" in path.name.lower():
+                continue
+            log_files.append(path)
+
         if not log_files:
             return None
         return log_files[0]
 
     def _normalize_detection_log(self, df):
-        required_columns = [
-            "Selection",
-            "Channel",
-            "Start_DateTime_ISO8601",
-            "End_DateTime_ISO8601",
-            "Low.Freq..Hz.",
-            "High.Freq..Hz.",
-            "Species",
-            "Detection_Confidence",
-        ]
+        required_columns = ["Selection", "Channel", "Start_DateTime_ISO8601", "End_DateTime_ISO8601", "Low.Freq..Hz.", "High.Freq..Hz.", "Species", "Detection_Confidence"]
 
-        missing = [column for column in required_columns if column not in df.columns]
+        missing = []
+        for column in required_columns:
+            if column not in df.columns:
+                missing.append(column)
+
         if missing:
             raise ValueError(f"Missing expected NOAA columns: {missing}")
 
@@ -198,18 +176,7 @@ class RightWhaleDataset(Dataset):
         df["End_DateTime_ISO8601"] = pd.to_datetime(df["End_DateTime_ISO8601"], utc=True)
 
         # Some logs contain paired Waveform/Spectrogram rows for the same detection.
-        df = df.drop_duplicates(
-            subset=[
-                "Selection",
-                "Channel",
-                "Start_DateTime_ISO8601",
-                "End_DateTime_ISO8601",
-                "Low.Freq..Hz.",
-                "High.Freq..Hz.",
-                "Species",
-                "Detection_Confidence",
-            ]
-        )
+        df = df.drop_duplicates(subset=["Selection", "Channel", "Start_DateTime_ISO8601", "End_DateTime_ISO8601", "Low.Freq..Hz.", "High.Freq..Hz.", "Species", "Detection_Confidence"])
 
         return df.reset_index(drop=True)
 
@@ -219,13 +186,7 @@ class RightWhaleDataset(Dataset):
             start_time = self._parse_wav_start_time(wav_path.name)
             duration_seconds = self._get_wav_duration_seconds(wav_path)
             end_time = start_time + timedelta(seconds=duration_seconds)
-            wav_index.append(
-                {
-                    "path": wav_path,
-                    "start_time": start_time,
-                    "end_time": end_time,
-                }
-            )
+            wav_index.append({"path": wav_path, "start_time": start_time, "end_time": end_time})
         return wav_index
 
     def _parse_wav_start_time(self, wav_name):
@@ -243,74 +204,192 @@ class RightWhaleDataset(Dataset):
         with wave.open(str(wav_path), "rb") as handle:
             return handle.getnframes() / float(handle.getframerate())
 
-    def _build_record_from_detection(self, row, dataset_dir, log_path, wav_index):
-        detection_start = row["Start_DateTime_ISO8601"].tz_localize(None)
-        detection_end = row["End_DateTime_ISO8601"].tz_localize(None)
+    def _build_chunk_records(self, dataset_dir, log_path, wav_index, detections_df):
+        detection_records = self._build_detection_records(detections_df)
+        rows = []
 
-        wav_entry = self._find_wav_for_detection(detection_start, detection_end, wav_index)
-        if wav_entry is None:
-            print(
-                f"Skipping detection in {log_path.name}: "
-                f"no source wav covers {detection_start.isoformat()} -> {detection_end.isoformat()}"
+        for wav_entry in wav_index:
+            wav_detections = []
+            wav_start_time = wav_entry["start_time"]
+            wav_end_time = wav_entry["end_time"]
+
+            for detection in detection_records:
+                detection_start_time = detection["start_time"]
+                detection_end_time = detection["end_time"]
+
+                if self._times_overlap(detection_start_time, detection_end_time, wav_start_time, wav_end_time):
+                    wav_detections.append(detection)
+
+            wav_duration_seconds = (wav_entry["end_time"] - wav_entry["start_time"]).total_seconds()
+            chunk_start_seconds = 0.0
+
+            # Evaluate fixed windows so both positive and negative chunks are represented.
+            while chunk_start_seconds < wav_duration_seconds:
+                chunk_end_seconds = chunk_start_seconds + self.clip_duration_seconds
+                if chunk_end_seconds > wav_duration_seconds:
+                    chunk_end_seconds = wav_duration_seconds
+
+                chunk_start_time = wav_entry["start_time"] + timedelta(seconds=chunk_start_seconds)
+                chunk_end_time = wav_entry["start_time"] + timedelta(seconds=chunk_end_seconds)
+
+                overlapping_detections = []
+                for detection in wav_detections:
+                    detection_start_time = detection["start_time"]
+                    detection_end_time = detection["end_time"]
+
+                    if self._times_overlap(detection_start_time, detection_end_time, chunk_start_time, chunk_end_time):
+                        overlapping_detections.append(detection)
+
+                rows.append(self._build_chunk_record(wav_entry=wav_entry, chunk_start_seconds=chunk_start_seconds, chunk_end_seconds=chunk_end_seconds, chunk_start_time=chunk_start_time,
+                    chunk_end_time=chunk_end_time, overlapping_detections=overlapping_detections, dataset_dir=dataset_dir, log_path=log_path))
+
+                chunk_start_seconds += self.clip_duration_seconds
+
+        return rows
+
+    def _build_detection_records(self, detections_df):
+        records = []
+
+        for _, row in detections_df.iterrows():
+            records.append(
+                {
+                    "selection": int(row["Selection"]),
+                    "channel": int(row["Channel"]),
+                    "start_time": row["Start_DateTime_ISO8601"].tz_localize(None),
+                    "end_time": row["End_DateTime_ISO8601"].tz_localize(None),
+                    "species_code": row["Species"],
+                    "detection_confidence": row["Detection_Confidence"],
+                    "low_freq_hz": float(row["Low.Freq..Hz."]),
+                    "high_freq_hz": float(row["High.Freq..Hz."]),
+                }
             )
-            return None #do not add to rows
 
-        #split the audio based on start time
-        clip_start_seconds = max(0.0, (detection_start - wav_entry["start_time"]).total_seconds())
-        clip_end_seconds = max(clip_start_seconds, (detection_end - wav_entry["start_time"]).total_seconds())
+        records.sort(key=lambda record: (record["start_time"], record["end_time"]))
+        return records
+
+    def _build_chunk_record(self, wav_entry, chunk_start_seconds, chunk_end_seconds, chunk_start_time, chunk_end_time, overlapping_detections, dataset_dir, log_path):
+        if overlapping_detections:
+            earliest_detection = overlapping_detections[0]
+            detection_confidence = self._select_detection_confidence(overlapping_detections)
+            selection = earliest_detection["selection"]
+            species_code = earliest_detection["species_code"]
+            channel = earliest_detection["channel"]
+            detection_start_time = earliest_detection["start_time"]
+            detection_end_time = earliest_detection["end_time"]
+            low_freq_hz = earliest_detection["low_freq_hz"]
+            high_freq_hz = earliest_detection["high_freq_hz"]
+
+            for detection in overlapping_detections[1:]:
+                current_start_time = detection["start_time"]
+                current_end_time = detection["end_time"]
+                current_low_freq_hz = detection["low_freq_hz"]
+                current_high_freq_hz = detection["high_freq_hz"]
+
+                if current_start_time < detection_start_time:
+                    detection_start_time = current_start_time
+
+                if current_end_time > detection_end_time:
+                    detection_end_time = current_end_time
+
+                if current_low_freq_hz < low_freq_hz:
+                    low_freq_hz = current_low_freq_hz
+
+                if current_high_freq_hz > high_freq_hz:
+                    high_freq_hz = current_high_freq_hz
+        else:
+            detection_start_time = pd.NaT
+            detection_end_time = pd.NaT
+            detection_confidence = "None"
+            selection = -1
+            species_code = ""
+            channel = -1
+            low_freq_hz = np.nan
+            high_freq_hz = np.nan
 
         return {
             "audio_path": str(wav_entry["path"]),
-            "clip_start_seconds": float(clip_start_seconds),
-            "clip_end_seconds": float(clip_end_seconds),
-            "detection_start_time": detection_start,
-            "detection_end_time": detection_end,
-            "chunk_start_time": wav_entry["start_time"],
-            "chunk_end_time": wav_entry["end_time"],
+            "clip_start_seconds": float(chunk_start_seconds),
+            "clip_end_seconds": float(chunk_end_seconds),
+            "chunk_start_time": chunk_start_time,
+            "chunk_end_time": chunk_end_time,
+            "detection_start_time": detection_start_time,
+            "detection_end_time": detection_end_time,
+            "matching_detections": len(overlapping_detections),
             "source_csv": str(log_path),
             "dataset_dir": str(dataset_dir),
-            "selection": int(row["Selection"]),
-            "species_code": row["Species"],
-            "detection_confidence": row["Detection_Confidence"],
-            "channel": int(row["Channel"]),
-            "low_freq_hz": float(row["Low.Freq..Hz."]),
-            "high_freq_hz": float(row["High.Freq..Hz."]),
+            "selection": selection,
+            "species_code": species_code,
+            "detection_confidence": detection_confidence,
+            "channel": channel,
+            "low_freq_hz": low_freq_hz,
+            "high_freq_hz": high_freq_hz,
         }
 
-    #runs when loading the .wav file in _build_record_from_detection, if None then does not add wav to rows
-    def _find_wav_for_detection(self, detection_start, detection_end, wav_index):
-        for entry in wav_index:
-            if entry["start_time"] <= detection_end <= entry["end_time"]:
-                return entry
-        return None
+    def _select_detection_confidence(self, overlapping_detections):
+        confidence_rank = {"low": 0, "medium": 1, "high": 2}
+        best_confidence = str(overlapping_detections[0]["detection_confidence"])
+        best_rank = confidence_rank.get(best_confidence.strip().lower(), -1)
+
+        for detection in overlapping_detections[1:]:
+            current_confidence = str(detection["detection_confidence"])
+            current_rank = confidence_rank.get(current_confidence.strip().lower(), -1)
+
+            if current_rank > best_rank:
+                best_confidence = current_confidence
+                best_rank = current_rank
+            elif current_rank == best_rank:
+                if current_confidence > best_confidence:
+                    best_confidence = current_confidence
+
+        return best_confidence
+
+    def _times_overlap(self, start_a, end_a, start_b, end_b):
+        if start_a >= end_b:
+            return False
+
+        if end_a <= start_b:
+            return False
+
+        return True
 
     def _sample_dataframe(self, df, percentage):
         if percentage <= 0 or percentage >= 1:
             return df.reset_index(drop=True)
-        _, sampled_df = train_test_split(df, test_size=percentage, random_state=42)
+        unique_audio_paths = df["audio_path"].drop_duplicates()
+        _, sampled_audio_paths = train_test_split(unique_audio_paths, test_size=percentage, random_state=42)
+        sampled_df = df[df["audio_path"].isin(sampled_audio_paths)]
         return sampled_df.reset_index(drop=True)
 
     def _split_dataframe(self, df):
-        train_val_df, test_df = train_test_split(df, test_size=0.1, random_state=42)
-        train_df, val_df = train_test_split(train_val_df, test_size=0.2, random_state=42)
-        return (
-            train_df.reset_index(drop=True),
-            val_df.reset_index(drop=True),
-            test_df.reset_index(drop=True),
-        )
+        unique_audio_paths = df["audio_path"].drop_duplicates()
+        train_val_paths, test_paths = train_test_split(unique_audio_paths, test_size=0.1, random_state=42)
+        train_paths, val_paths = train_test_split(train_val_paths, test_size=0.2, random_state=42)
+        train_df = df[df["audio_path"].isin(train_paths)]
+        val_df = df[df["audio_path"].isin(val_paths)]
+        test_df = df[df["audio_path"].isin(test_paths)]
+        return train_df.reset_index(drop=True), val_df.reset_index(drop=True), test_df.reset_index(drop=True)
 
     def _create_output_column(self, df, label_columns):
         outputs = []
         for _, row in df[label_columns].iterrows():
-            labels = [column for column in label_columns if row[column] == 1]
-            outputs.append(", ".join(labels) if labels else "None")
+            labels = []
+            for column in label_columns:
+                if row[column] == 1:
+                    labels.append(column)
+
+            if labels:
+                output_value = ", ".join(labels)
+            else:
+                output_value = "None"
+
+            outputs.append(output_value)
         return outputs
 
     def _save_metadata_extra(self, df):
         output_df = df.copy()
         for column in ["detection_start_time", "detection_end_time", "chunk_start_time", "chunk_end_time"]:
             output_df[column] = output_df[column].astype(str)
-        output_df.to_csv(self.root_dir / "metadata_extra.csv", index=False)
+        output_df.to_csv(self.root_dir / self.METADATA_CACHE_NAME, index=False)
 
     def load_audio(self, audio_path, start_time=None, end_time=None):
         try:
@@ -320,10 +399,28 @@ class RightWhaleDataset(Dataset):
 
             #set start/stop times
             info = sf.info(audio_path)
-            frame_start = 0 if start_time is None else max(0, int(float(start_time) * info.samplerate))
-            frame_stop = info.frames if end_time is None else min(info.frames, int(float(end_time) * info.samplerate))
+            if start_time is None:
+                frame_start = 0
+            else:
+                frame_start = int(float(start_time) * info.samplerate)
+                if frame_start < 0:
+                    frame_start = 0
+
+            if end_time is None:
+                frame_stop = info.frames
+            else:
+                frame_stop = int(float(end_time) * info.samplerate)
+                if frame_stop > info.frames:
+                    frame_stop = info.frames
+
+            max_frame_count = int(self.clip_duration_seconds * info.samplerate)
+            if frame_stop > frame_start + max_frame_count:
+                frame_stop = frame_start + max_frame_count
+
             if frame_stop <= frame_start:
-                frame_stop = min(info.frames, frame_start + int(self.clip_duration_seconds * info.samplerate))
+                frame_stop = frame_start + max_frame_count
+                if frame_stop > info.frames:
+                    frame_stop = info.frames
 
             wav, sr = sf.read(audio_path, start=frame_start, stop=frame_stop)
 
@@ -341,11 +438,9 @@ class RightWhaleDataset(Dataset):
             #pad if needed
             if len(wav) < self.max_length_samples:
                 wav = np.pad(wav, (0, self.max_length_samples - len(wav)))
-            #cut to size if needed
-            else:
-                #place time in middle of existing audio chunk
-                start = max(0, (len(wav) - self.max_length_samples) // 2)
-                wav = wav[start:start + self.max_length_samples]
+            #trim only trailing spillover so the requested chunk start stays aligned
+            elif len(wav) > self.max_length_samples:
+                wav = wav[:self.max_length_samples]
 
             return torch.from_numpy(wav).float()
         except Exception as exc:
@@ -368,11 +463,7 @@ class RightWhaleDataset(Dataset):
 
     def __getitem__(self, index):
         row = self.df.iloc[index]
-        audio = self.load_audio(
-            row["audio_path"],
-            start_time=row["clip_start_seconds"],
-            end_time=row["clip_end_seconds"],
-        )
+        audio = self.load_audio(row["audio_path"], start_time=row["clip_start_seconds"], end_time=row["clip_end_seconds"])
         labels = self.get_labels(row)
 
         return {
@@ -380,6 +471,6 @@ class RightWhaleDataset(Dataset):
             "text": labels,
             "prompt": self.config.model.prompt_template,
             "task": "species-classification",
-            "id": row["audio_path"],
+            "id": f"{row['audio_path']}:{row['clip_start_seconds']:.2f}-{row['clip_end_seconds']:.2f}",
             "index": index,
         }
