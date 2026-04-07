@@ -82,6 +82,8 @@ class RightWhaleDataset(Dataset):
             for column in ["detection_start_time", "detection_end_time", "chunk_start_time", "chunk_end_time"]:
                 if column in df.columns:
                     df[column] = pd.to_datetime(df[column])
+            if "output" in df.columns:
+                df = df.drop(columns=["output"])
         else:
             df = self._build_metadata_dataframe()
             self._save_metadata_extra(df)
@@ -139,11 +141,10 @@ class RightWhaleDataset(Dataset):
         df[self.SPECIES_NAME] = (df["matching_detections"] > 0).astype(int)
         df["task"] = "species-multiple-detection"
         df["instruction"] = "<Audio><AudioHere></Audio> Which of these, if any, are present in the audio recording? North Atlantic Right Whale, North Pacific Right Whale, Southern Right Whale"
-        df["output"] = self._create_output_column(df, [self.SPECIES_NAME])
         df["dataset_name"] = "noaa-right-whale"
 
         ordered_columns = ["audio_path", "clip_start_seconds", "clip_end_seconds", "chunk_start_time", "chunk_end_time", "detection_start_time", "detection_end_time", "matching_detections"]
-        ordered_columns += ["task", "instruction", "output", self.SPECIES_NAME, "dataset_name", "source_csv", "dataset_dir", "selection", "species_code"]
+        ordered_columns += ["task", "instruction", self.SPECIES_NAME, "dataset_name", "source_csv", "dataset_dir", "selection", "species_code"]
         ordered_columns += ["detection_confidence", "channel", "low_freq_hz", "high_freq_hz"]
         return df[ordered_columns]
 
@@ -368,22 +369,6 @@ class RightWhaleDataset(Dataset):
         val_df = df[df["audio_path"].isin(val_paths)]
         test_df = df[df["audio_path"].isin(test_paths)]
         return train_df.reset_index(drop=True), val_df.reset_index(drop=True), test_df.reset_index(drop=True)
-
-    def _create_output_column(self, df, label_columns):
-        outputs = []
-        for _, row in df[label_columns].iterrows():
-            labels = []
-            for column in label_columns:
-                if row[column] == 1:
-                    labels.append(column)
-
-            if labels:
-                output_value = ", ".join(labels)
-            else:
-                output_value = "None"
-
-            outputs.append(output_value)
-        return outputs
 
     def _save_metadata_extra(self, df):
         output_df = df.copy()

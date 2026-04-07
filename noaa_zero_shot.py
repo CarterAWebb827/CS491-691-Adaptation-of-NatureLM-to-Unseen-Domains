@@ -107,7 +107,6 @@ def main():
 
     for index, result in enumerate(results):
         row = noaa_df.iloc[index]
-        output = row["output"].strip().lower()
         audio_path = row["audio_path"]
         chunk_start = row["chunk_start_time"]
         chunk_end = row["chunk_end_time"]
@@ -144,7 +143,6 @@ def main():
             print(f"\nExample {index}:")
             print(f"Audio Path: {audio_path}:")
             print(f"Chunk window: {chunk_start} -> {chunk_end}")
-            print(f"Ground Truth: {output}")
             print(f"Chunk label is right whale: {actual_right_whale}")
             print(f"Prediction output: {prediction}")
             print(f"Prediction by species name: {predicted_right_whale}")
@@ -181,7 +179,6 @@ def main():
     detailed_columns["clip_end_seconds"] = noaa_df["clip_end_seconds"]
     detailed_columns["matching_detections"] = noaa_df["matching_detections"]
     detailed_columns["detection_confidence"] = noaa_df["detection_confidence"]
-    detailed_columns["ground_truth"] = noaa_df["output"]
     detailed_columns["actual_right_whale"] = actual_right_whales
     detailed_columns["prediction_right_whales"] = prediction_right_whales
     detailed_columns["confusion_label"] = confusion_labels
