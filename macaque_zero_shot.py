@@ -1,0 +1,352 @@
+import os
+from pathlib import Path
+from huggingface_hub import login
+import argparse
+import pandas as pd
+
+current_dir = Path.cwd()
+naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
+
+from NatureLMaudio.NatureLM.config import Config
+from NatureLMaudio.NatureLM.infer import Pipeline
+
+from macaque_dataset import MacaqueDataset
+
+login()
+
+def majority_vote(predictions):
+    if not predictions:
+        return "none"
+
+    counts = {}
+    for pred in predictions:
+        counts[pred] = counts.get(pred, 0) + 1
+
+    max_count = -1
+    most_common = None
+    for pred, count in counts.items():
+        if count > max_count:
+            max_count = count
+            most_common = pred
+
+    return most_common
+
+def evaluate_zero_shot(dataset, config, results_dir, dataset_name="test", cache_results=True, num_examples_to_print=5):
+    results_path = Path(results_dir)
+    results_path.mkdir(parents=True, exist_ok=True)
+
+    results_file = results_path / f"zero_shot_{dataset_name}_results.txt"
+    summary_file = results_path / f"zero_shot_{dataset_name}_summary.txt"
+
+    print(f"\nEvaluating zero-shot on {dataset_name} set: {len(dataset)} samples")
+
+    eval_data = []
+    for idx in range(len(dataset)):
+        item = dataset[idx]
+        row = dataset.df.iloc[idx]
+        eval_data.append({
+            'index': idx,
+            'call_type_list': row[dataset.label_columns].values.tolist(),
+            'output': item['text'],
+            'audio_path': item['id'],
+            'label_columns': dataset.label_columns,
+            'split': row.get('split', 'unknown')
+        })
+
+    eval_df = pd.DataFrame(eval_data)
+
+    cache_file = results_path / f"zero_shot_{dataset_name}_cached_results.txt"
+    results = []
+
+    if cache_results and cache_file.exists():
+        print(f"Loading cached results from {cache_file}")
+        with open(cache_file, 'r') as f:
+            for line in f:
+                results.append(line.rstrip())
+    else:
+        print("Loading inference pipeline...")
+        cfg_path = "NatureLMaudio/configs/inference.yml"
+        infer_pipe = Pipeline(cfg_path=cfg_path)
+
+        print(f"Running zero-shot inference on {len(eval_df)} samples...")
+        batch_size = 8
+        all_results = []
+
+        for i in range(0, len(eval_df), batch_size):
+            if i % 100 == 0:
+                print(f"  Processed {i}/{len(eval_df)}")
+
+            batch_end = min(i + batch_size, len(eval_df))
+            batch_paths = eval_df["audio_path"].iloc[i:batch_end].tolist()
+            batch_instructions = ["<Audio><AudioHere></Audio> What type of macaque call is present in the audio, if any?"] * len(batch_paths)
+
+            batch_results = infer_pipe(batch_paths, batch_instructions)
+            all_results.extend(batch_results)
+
+        results = all_results
+
+        if cache_results:
+            with open(cache_file, 'w') as f:
+                f.write("\n".join(results) + "\n")
+            print(f"Results cached to: {cache_file}")
+
+    with open(results_file, 'w') as f:
+        f.write("\n".join(results) + "\n")
+    print(f"Raw results saved to: {results_file}")
+
+    grouped_results = []
+    current_audio_windows = []
+
+    for i, result in enumerate(results):
+        if "#0.00s" in result and current_audio_windows:
+            if current_audio_windows:
+                grouped_results.append(current_audio_windows)
+            current_audio_windows = [result]
+        else:
+            current_audio_windows.append(result)
+
+    if current_audio_windows:
+        grouped_results.append(current_audio_windows)
+
+    if len(grouped_results) != len(eval_df):
+        print(f"Warning: Grouped results count ({len(grouped_results)}) doesn't match eval samples ({len(eval_df)})")
+        while len(grouped_results) < len(eval_df):
+            grouped_results.append([])
+
+    print(f"Grouped into {len(grouped_results)} audio files")
+
+    detailed_results = []
+    total_correct_exact = 0
+    total_correct_any = 0
+    total_calls_present = 0
+    total_calls_predicted = 0
+    true_positives = 0
+    false_positives = 0
+    false_negatives = 0
+
+    call_type_columns = dataset.label_columns
+    call_type_lookup = {ct.lower().strip(): ct for ct in call_type_columns}
+
+    call_type_metrics = {ct: {'tp': 0, 'fp': 0, 'fn': 0} for ct in call_type_columns}
+
+    for idx, (row, window_results) in enumerate(zip(eval_df.iterrows(), grouped_results)):
+        row_data = row[1]
+        ground_truth_text = row_data["output"].strip().lower()
+
+        if ground_truth_text == "none":
+            ground_truth_calls = set()
+        else:
+            raw_calls = [c.strip() for c in ground_truth_text.split(",")]
+            ground_truth_calls = set()
+            for ct in raw_calls:
+                ct_norm = ct.lower().strip()
+                if ct_norm in call_type_lookup:
+                    ground_truth_calls.add(call_type_lookup[ct_norm])
+                else:
+                    print(f"Warning: Unknown call type '{ct}' not found in label columns")
+
+        window_preds = []
+        for window_result in window_results:
+            if window_result and window_result.strip():
+                prediction_list = window_result.split(":", 1)
+                if len(prediction_list) > 1:
+                    prediction_text = prediction_list[1].strip().lower()
+                else:
+                    prediction_text = prediction_list[0].strip().lower()
+
+                if "," in prediction_text:
+                    predictions = [p.strip().lower() for p in prediction_text.split(",")]
+                else:
+                    predictions = [prediction_text]
+
+                for pred in predictions:
+                    if pred != "none":
+                        pred_norm = pred.lower().strip()
+                        if pred_norm in call_type_lookup:
+                            matched_call = call_type_lookup[pred_norm]
+                            if matched_call not in window_preds:
+                                window_preds.append(matched_call)
+
+        predicted_calls = set(window_preds) if window_preds else set(["none"])
+
+        exact_match = (predicted_calls == ground_truth_calls or
+                    (predicted_calls == set(["none"]) and ground_truth_calls == set()))
+        if exact_match:
+            total_correct_exact += 1
+
+        if ground_truth_calls:
+            any_correct = len(predicted_calls.intersection(ground_truth_calls)) > 0
+            if any_correct:
+                total_correct_any += 1
+
+        for call_type in ground_truth_calls:
+            if call_type in call_type_metrics:
+                if call_type in predicted_calls:
+                    call_type_metrics[call_type]['tp'] += 1
+                else:
+                    call_type_metrics[call_type]['fn'] += 1
+
+        for call_type in predicted_calls - set(["none"]):
+            if call_type in call_type_metrics:
+                if call_type not in ground_truth_calls:
+                    call_type_metrics[call_type]['fp'] += 1
+
+        tp = len(predicted_calls.intersection(ground_truth_calls))
+        fp = len(predicted_calls - ground_truth_calls - set(["none"]))
+        fn = len(ground_truth_calls - predicted_calls)
+
+        true_positives += tp
+        false_positives += fp
+        false_negatives += fn
+        total_calls_present += len(ground_truth_calls)
+        total_calls_predicted += len(predicted_calls - set(["none"]))
+
+        detailed_results.append({
+            'index': idx,
+            'ground_truth': ground_truth_text,
+            'ground_truth_set': list(ground_truth_calls),
+            'window_predictions': window_preds,
+            'predicted_set': list(predicted_calls - set(["none"])),
+            'exact_match': exact_match,
+            'any_correct': any_correct if ground_truth_calls else None,
+            'true_positives': tp,
+            'false_positives': fp,
+            'false_negatives': fn
+        })
+
+        if idx < num_examples_to_print:
+            print(f"\n{'='*50}")
+            print(f"Example {idx}:")
+            print(f"Ground truth: {ground_truth_text}")
+            print(f"Ground truth calls (normalized): {ground_truth_calls}")
+            print(f"Window predictions: {window_preds}")
+            print(f"Predicted calls (normalized): {predicted_calls - set(['none'])}")
+            print(f"Exact match: {exact_match}")
+
+    exact_accuracy = (total_correct_exact / len(eval_df)) * 100
+    any_accuracy = (total_correct_any / len(eval_df)) * 100 if total_calls_present > 0 else 0
+
+    precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
+    recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
+    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
+    per_call_type_results = {}
+    for call_type, metrics in call_type_metrics.items():
+        ct_precision = metrics['tp'] / (metrics['tp'] + metrics['fp']) if (metrics['tp'] + metrics['fp']) > 0 else 0
+        ct_recall = metrics['tp'] / (metrics['tp'] + metrics['fn']) if (metrics['tp'] + metrics['fn']) > 0 else 0
+        ct_f1 = 2 * (ct_precision * ct_recall) / (ct_precision + ct_recall) if (ct_precision + ct_recall) > 0 else 0
+
+        per_call_type_results[call_type] = {
+            'true_positives': metrics['tp'],
+            'false_positives': metrics['fp'],
+            'false_negatives': metrics['fn'],
+            'precision': ct_precision,
+            'recall': ct_recall,
+            'f1': ct_f1
+        }
+
+    print(f"\n{'='*50}")
+    print(f"ZERO-SHOT EVALUATION SUMMARY - {dataset_name.upper()} SET")
+    print(f"{'='*50}")
+    print(f"Total samples: {len(eval_df)}")
+    print(f"Exact match accuracy: {exact_accuracy:.2f}%")
+    print(f"Any correct detection accuracy: {any_accuracy:.2f}%")
+    print(f"\nOverall metrics:")
+    print(f"  True Positives: {true_positives}")
+    print(f"  False Positives: {false_positives}")
+    print(f"  False Negatives: {false_negatives}")
+    print(f"  Precision: {precision:.3f}")
+    print(f"  Recall: {recall:.3f}")
+    print(f"  F1 Score: {f1:.3f}")
+
+    with open(summary_file, "w") as f:
+        f.write(f"ZERO-SHOT EVALUATION SUMMARY - {dataset_name.upper()} SET\n")
+        f.write("="*50 + "\n")
+        f.write(f"Total samples: {len(eval_df)}\n")
+        f.write(f"Exact Match Accuracy: {exact_accuracy:.2f}%\n")
+        f.write(f"Any Correct Detection Accuracy: {any_accuracy:.2f}%\n\n")
+
+        f.write("Overall Metrics:\n")
+        f.write(f"  True Positives: {true_positives}\n")
+        f.write(f"  False Positives: {false_positives}\n")
+        f.write(f"  False Negatives: {false_negatives}\n")
+        f.write(f"  Precision: {precision:.3f}\n")
+        f.write(f"  Recall: {recall:.3f}\n")
+        f.write(f"  F1 Score: {f1:.3f}\n\n")
+
+        f.write("Per-call-type Metrics:\n")
+        f.write("-" * 80 + "\n")
+        f.write(f"{'Call Type':<30} {'TP':<6} {'FP':<6} {'FN':<6} {'Precision':<10} {'Recall':<10} {'F1':<10}\n")
+        f.write("-" * 80 + "\n")
+
+        for call_type, metrics in sorted(per_call_type_results.items()):
+            f.write(f"{call_type:<30} {metrics['true_positives']:<6} {metrics['false_positives']:<6} "
+                   f"{metrics['false_negatives']:<6} {metrics['precision']:<10.3f} {metrics['recall']:<10.3f} "
+                   f"{metrics['f1']:<10.3f}\n")
+
+    print(f"\nEvaluation summary saved to: {summary_file}")
+
+    predictions_df = pd.DataFrame(detailed_results)
+    predictions_file = results_path / f"zero_shot_{dataset_name}_predictions.csv"
+    predictions_df.to_csv(predictions_file, index=False)
+    print(f"Detailed predictions saved to: {predictions_file}")
+
+    return {
+        'exact_accuracy': exact_accuracy,
+        'any_accuracy': any_accuracy,
+        'total_samples': len(eval_df),
+        'correct_predictions_exact': total_correct_exact,
+        'correct_predictions_any': total_correct_any,
+        'true_positives': true_positives,
+        'false_positives': false_positives,
+        'false_negatives': false_negatives,
+        'precision': precision,
+        'recall': recall,
+        'f1': f1,
+        'per_call_type_metrics': per_call_type_results,
+        'detailed_results': detailed_results
+    }
+
+def main():
+    parser = argparse.ArgumentParser(description="Zero-shot evaluation on macaque vocalization dataset")
+    parser.add_argument("--data_root", type=str, default="data/macaques",
+                       help="Root directory containing macaque data")
+    parser.add_argument("--results_dir", type=str, default="outputs/macaque_zeroshot",
+                       help="Directory to save results")
+    parser.add_argument("--no_cache", action="store_true",
+                       help="Disable result caching")
+    parser.add_argument("--num_examples", type=int, default=5,
+                       help="Number of example predictions to print")
+    parser.add_argument("--use_percentage", type=float, default=None,
+                       help="Percentage of data to use (for quick testing)")
+    parser.add_argument("--output_file", type=str, default=None,
+                       help="Output file for predictions (optional)")
+    args = parser.parse_args()
+
+    cfg_path = "NatureLMaudio/configs/inference.yml"
+    cfg = Config.from_sources(cfg_path)
+
+    for split_name in ['test', 'valid', 'train']:
+        print("\n" + "="*50)
+        print(f"EVALUATING ZERO-SHOT ON {split_name.upper()} SET")
+        print("="*50)
+
+        print(f"Loading Macaque {split_name} dataset...")
+        dataset = MacaqueDataset(
+            config=cfg,
+            split=split_name,
+            root_dir=args.data_root,
+            percentage=args.use_percentage
+        )
+
+        results = evaluate_zero_shot(
+            dataset=dataset,
+            config=cfg,
+            results_dir=args.results_dir,
+            dataset_name=split_name,
+            cache_results=not args.no_cache,
+            num_examples_to_print=args.num_examples
+        )
+
+if __name__ == "__main__":
+    main()

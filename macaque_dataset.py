@@ -1,0 +1,293 @@
+!mkdir -p data/macaques
+!wget -O macaques.zip https://archive.org/download/macaque_coo_calls/macaques.zip
+!unzip -q macaques.zip -d data/macaques
+
+import os
+from pathlib import Path
+
+audio_files = list(Path("data/macaques").glob("**/*.wav"))
+for f in audio_files[:5]:
+    print(f, f.parent.name)
+
+import os
+import sys
+import pandas as pd
+import numpy as np
+from pathlib import Path
+import torch
+from torch.utils.data import Dataset
+import soundfile as sf
+from sklearn.model_selection import train_test_split
+import torchaudio.transforms as T
+
+ON_VISTA = os.path.exists('/home1') or 'TACC' in os.environ.get('HOSTNAME', '')
+
+if ON_VISTA:
+    WORK_DIR = os.environ.get('WORK', '/work')
+    NATURELM_DIR = os.path.join(WORK_DIR, 'NatureLMaudio')
+
+    if str(NATURELM_DIR) not in sys.path:
+        sys.path.insert(0, str(NATURELM_DIR))
+        print(f"Added {NATURELM_DIR} to Python path")
+
+    from NatureLM.dataset import collater
+else:
+    try:
+        import google.colab
+        IN_COLAB = True
+    except ImportError:
+        IN_COLAB = False
+
+    if IN_COLAB:
+        current_dir = Path.cwd()
+        naturelm_dir = current_dir / "NatureLMaudio"
+        if str(naturelm_dir) not in sys.path:
+            sys.path.insert(0, str(naturelm_dir))
+        from NatureLM.dataset import collater
+    else:
+        from NatureLMaudio.NatureLM.dataset import collater
+
+current_dir = Path.cwd()
+
+class MacaqueDataset(Dataset):
+    _train_df = None
+    _valid_df = None
+    _test_df = None
+    _label_columns = None
+    _is_prepared = False
+
+    def __init__(self, config, percentage=None, split="train", root_dir="data/macaques", use_predefined_splits=True):
+        self.config = config
+        self.percentage = percentage
+        self.split = split
+        self.root_dir = Path(root_dir)
+        self.sample_rate = 16000
+        self.max_length_samples = 10 * self.sample_rate
+        self.audio_column = "filename"
+        self.collater = collater
+        self.use_predefined_splits = use_predefined_splits
+
+        if not MacaqueDataset._is_prepared:
+            self._prepare_metadata()
+
+        if use_predefined_splits:
+            self._load_predefined_splits()
+        else:
+            self._load_random_splits()
+
+        self.label_columns = MacaqueDataset._label_columns
+
+        print(f"Loaded {self.split} split: {len(self.df)} samples")
+        print(f"Call type: {self.label_columns[0]}")
+
+    def _prepare_metadata(self):
+        metadata_path = self.root_dir / "metadata.csv"
+
+        if metadata_path.exists():
+            df = pd.read_csv(metadata_path)
+        else:
+            print("No metadata found. Creating metadata from directory structure...")
+            audio_files = []
+            for split_dir in ['train', 'valid', 'test']:
+                split_path = self.root_dir / split_dir
+                if split_path.exists():
+                    for audio_file in split_path.glob("*.wav"):
+                        audio_files.append({
+                            'filename': audio_file.stem,
+                            'audio_path': str(audio_file),
+                            'split': split_dir,
+                            'call_type': 'coo_call'
+                        })
+
+            df = pd.DataFrame(audio_files)
+            df.to_csv(metadata_path, index=False)
+            print(f"Created metadata file at {metadata_path}")
+
+        label_columns = ['coo_call']
+        MacaqueDataset._label_columns = label_columns
+
+        for col in label_columns:
+            df[col] = (df['call_type'] == col).astype(int)
+
+        needs_update = False
+
+        if "task" not in df.columns:
+            df["task"] = "macaque-call-classification"
+            needs_update = True
+
+        if "instruction" not in df.columns:
+            df["instruction"] = "<Audio><AudioHere></Audio> What type of macaque call is present in the audio, if any?"
+            needs_update = True
+
+        if "output" not in df.columns:
+            df["output"] = self._create_output_column(df, MacaqueDataset._label_columns)
+            needs_update = True
+
+        if "split" not in df.columns:
+            print("No 'split' column found. Creating predefined splits...")
+            df = self._create_predefined_splits(df)
+            needs_update = True
+
+        if needs_update:
+            self._save_metadata_extra(df)
+
+        MacaqueDataset._full_df = df
+
+    def _create_predefined_splits(self, df):
+        if 'split' in df.columns:
+            return df
+
+        train_df = df[df['split'] == 'train'].copy()
+        val_df = df[df['split'] == 'valid'].copy()
+        test_df = df[df['split'] == 'test'].copy()
+
+        print("="*30)
+        print("Using existing directory structure for splits:")
+        print(f"\tTrain: {len(train_df)} samples")
+        print(f"\tValid: {len(val_df)} samples")
+        print(f"\tTest: {len(test_df)} samples")
+        print("="*30)
+
+        return df
+
+    def _load_predefined_splits(self):
+        df = MacaqueDataset._full_df
+
+        if self.percentage is not None:
+            split_df = df[df['split'] == self.split].copy()
+
+            stratify_labels = split_df[MacaqueDataset._label_columns].sum(axis=1) > 0
+
+            sample_size = int(len(split_df) * self.percentage)
+
+            _, sampled_df = train_test_split(
+                split_df,
+                test_size=sample_size,
+                random_state=42,
+                stratify=stratify_labels
+            )
+            self.df = sampled_df
+        else:
+            self.df = df[df['split'] == self.split].copy()
+
+    def _load_random_splits(self):
+        df = MacaqueDataset._full_df
+
+        if self.percentage is not None:
+            current_stratify = df[MacaqueDataset._label_columns].sum(axis=1) > 0
+            _, df = train_test_split(
+                df,
+                test_size=self.percentage,
+                random_state=42,
+                stratify=current_stratify
+            )
+
+        stratify_labels = df[MacaqueDataset._label_columns].sum(axis=1) > 0
+
+        train_val_df, test_df = train_test_split(
+            df,
+            test_size=0.1,
+            random_state=42,
+            stratify=stratify_labels
+        )
+
+        train_val_stratify = train_val_df[MacaqueDataset._label_columns].sum(axis=1) > 0
+        train_df, val_df = train_test_split(
+            train_val_df,
+            test_size=0.2,
+            random_state=42,
+            stratify=train_val_stratify
+        )
+
+        MacaqueDataset._train_df = train_df
+        MacaqueDataset._valid_df = val_df
+        MacaqueDataset._test_df = test_df
+
+        if self.split == "train":
+            self.df = MacaqueDataset._train_df
+        elif self.split == "valid":
+            self.df = MacaqueDataset._valid_df
+        elif self.split == "test":
+            self.df = MacaqueDataset._test_df
+
+    def _create_output_column(self, df, label_columns):
+        outputs = []
+        for idx, row in df[label_columns].iterrows():
+            call_types_pres = []
+            for col in label_columns:
+                if row[col] == 1:
+                    call_types_pres.append(col)
+
+            if call_types_pres:
+                outputs.append(", ".join(call_types_pres))
+            else:
+                outputs.append("None")
+
+        return outputs
+
+    def _save_metadata_extra(self, df):
+        output_path = self.root_dir / "metadata_extra.csv"
+        df.to_csv(output_path, index=False)
+        print(f"Saved updated metadata to {output_path}")
+
+    def load_audio(self, audio_path):
+        try:
+            wav, sr = sf.read(audio_path)
+
+            if len(wav.shape) > 1:
+                wav = wav.mean(axis=1)
+
+            if sr != self.sample_rate:
+                wav_tensor = torch.from_numpy(wav).float()
+                resampler = T.Resample(sr, self.sample_rate)
+                wav_tensor = resampler(wav_tensor.unsqueeze(0)).squeeze(0)
+                wav = wav_tensor.numpy()
+            else:
+                wav_tensor = torch.from_numpy(wav).float()
+
+            if len(wav) < self.max_length_samples:
+                wav = np.pad(wav, (0, self.max_length_samples - len(wav)))
+            else:
+                if self.split == "train":
+                    start = np.random.randint(0, len(wav) - self.max_length_samples)
+                    wav = wav[start:start + self.max_length_samples]
+                else:
+                    start = (len(wav) - self.max_length_samples) // 2
+                    wav = wav[start:start + self.max_length_samples]
+
+            return torch.from_numpy(wav).float()
+        except Exception as e:
+            print(f"Error loading {audio_path}: {e}")
+            return torch.zeros(self.max_length_samples, dtype=torch.float32)
+
+    def get_labels(self, row):
+        labels = []
+        for col in self.label_columns:
+            if row[col] == 1:
+                labels.append(col)
+
+        if not labels:
+            return "None"
+
+        return ", ".join(labels)
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, index):
+        row = self.df.iloc[index]
+
+        audio_path = row["audio_path"]
+
+        audio = self.load_audio(audio_path)
+
+        labels = self.get_labels(row)
+
+        return {
+            "raw_wav": [audio],
+            "text": labels,
+            "prompt": self.config.model.prompt_template,
+            "task": "macaque-call-classification",
+            "id": audio_path,
+            "index": index
+        }
