@@ -48,8 +48,10 @@ class AnuraDataset(Dataset):
     _train_df = None
     _valid_df = None
     _test_df = None
+    _full_df = None
     _label_columns = None
     _is_prepared = False
+    _reduced_df = None  # Store reduced version for percentage testing
 
     def __init__(self, config, percentage=None, split="train", root_dir="data/AnuraSet", use_predefined_splits=True):
         """
@@ -71,22 +73,89 @@ class AnuraDataset(Dataset):
         self.collater = collater
         self.use_predefined_splits = use_predefined_splits
 
-        # Prepare the metadata
+        # Prepare the metadata (only once)
         if not AnuraDataset._is_prepared:
             self._prepare_metadata()
 
-        # Assign the appropriate splits based on method
-        if use_predefined_splits:
-            # Use pre-defined split column
-            self._load_predefined_splits()
-        else:
-            # Use random splits (legacy method)
-            self._load_random_splits()
+        # Apply percentage reduction to the FULL dataset if specified
+        # This ensures we get a representative subset across ALL splits
+        if self.percentage is not None and AnuraDataset._reduced_df is None:
+            self._create_reduced_dataset()
+        
+        # Load the appropriate split
+        self._load_split()
 
         self.label_columns = AnuraDataset._label_columns
 
         print(f"Loaded {self.split} split: {len(self.df)} samples")
         print(f"Number of species: {len(self.label_columns)}")
+    
+    def _create_reduced_dataset(self):
+        """Create a reduced version of the entire dataset by taking a percentage of each split"""
+        print(f"\n{'='*50}")
+        print(f"Creating reduced dataset: {self.percentage*100}% of full data")
+        print(f"{'='*50}")
+        
+        # Get the full dataframe
+        full_df = AnuraDataset._full_df
+        
+        # Create a reduced version by sampling from each split proportionally
+        reduced_dfs = []
+        
+        for split_name in ['train', 'valid', 'test']:
+            split_df = full_df[full_df['split'] == split_name].copy()
+            
+            if len(split_df) > 0:
+                # Calculate how many samples to take from this split
+                n_samples = max(1, int(len(split_df) * self.percentage))
+                
+                # Stratify by species presence to maintain distribution
+                stratify_labels = split_df[AnuraDataset._label_columns].sum(axis=1) > 0
+                
+                # Sample with fixed random state for reproducibility
+                sampled_df = split_df.groupby(stratify_labels, group_keys=False).apply(
+                    lambda x: x.sample(
+                        n=min(len(x), max(1, int(len(x) * self.percentage))),
+                        random_state=42
+                    )
+                )
+                
+                # Alternative: use train_test_split for more control
+                # _, sampled_df = train_test_split(
+                #     split_df,
+                #     train_size=n_samples,
+                #     random_state=42,
+                #     stratify=stratify_labels
+                # )
+                
+                reduced_dfs.append(sampled_df)
+                print(f"  {split_name}: {len(split_df)} -> {len(sampled_df)} samples ({len(sampled_df)/len(split_df)*100:.1f}%)")
+        
+        # Combine all reduced splits
+        AnuraDataset._reduced_df = pd.concat(reduced_dfs, axis=0)
+        print(f"Total reduced dataset: {len(AnuraDataset._reduced_df)} samples")
+        print(f"{'='*50}\n")
+    
+    def _load_split(self):
+        """Load the appropriate split from either full or reduced dataset"""
+        # Choose which dataframe to use
+        if self.percentage is not None:
+            source_df = AnuraDataset._reduced_df
+        else:
+            source_df = AnuraDataset._full_df
+        
+        # Filter by split
+        if self.split == "train":
+            self.df = source_df[source_df['split'] == 'train'].copy()
+        elif self.split == "valid":
+            self.df = source_df[source_df['split'] == 'valid'].copy()
+        elif self.split == "test":
+            self.df = source_df[source_df['split'] == 'test'].copy()
+        else:
+            raise ValueError(f"Unknown split: {self.split}")
+        
+        # Reset index for clean access
+        self.df = self.df.reset_index(drop=True)
     
     def _prepare_metadata(self):
         # Load our species mappings
@@ -148,7 +217,7 @@ class AnuraDataset(Dataset):
 
         # Store the full dataframe at class level for split reference
         AnuraDataset._full_df = df
-
+    
     def _create_predefined_splits(self, df):
         """
         Create a 'split' column with predefined train/valid/test assignments.
@@ -195,6 +264,18 @@ class AnuraDataset(Dataset):
         print("="*30)
         
         return df_with_splits
+
+    @classmethod
+    def reset_class_state(cls):
+        """Reset class variables - useful for testing different percentage values"""
+        cls._train_df = None
+        cls._valid_df = None
+        cls._test_df = None
+        cls._full_df = None
+        cls._reduced_df = None
+        cls._label_columns = None
+        cls._is_prepared = False
+        print("Class state reset")
 
     def _load_predefined_splits(self):
         """Load data based on pre-defined split column"""

@@ -8,7 +8,7 @@ import pandas as pd
 import torch
 import torch.cuda as cuda
 import json
-from typing import List, Dict, Any
+import numpy as np
 
 ON_VISTA = os.path.exists('/home1') or 'TACC' in os.environ.get('HOSTNAME', '')
 
@@ -21,7 +21,7 @@ if ON_VISTA:
         sys.path.insert(0, str(NATURELM_DIR))
     
     from NatureLM.config import Config
-    from NatureLM.infer import load_model_and_config
+    from NatureLM.infer import load_model_and_config, Pipeline
     from NatureLM.runner import Runner
 else:
     # Original import logic
@@ -41,10 +41,17 @@ else:
         from NatureLM.runner import Runner
     else:
         from NatureLMaudio.NatureLM.config import Config
-        from NatureLMaudio.NatureLM.infer import load_model_and_config
+        from NatureLMaudio.NatureLM.infer import load_model_and_config, Pipeline
         from NatureLMaudio.NatureLM.runner import Runner
 
-login()
+# Try environment variable first, then fall back to interactive
+hf_token = os.environ.get('HF_TOKEN')
+if hf_token:
+    print("Logging in with HF_TOKEN from environment...")
+    login(token=hf_token)
+else:
+    print("No HF_TOKEN found in environment, will prompt for login...")
+    login() # This will prompt interactively if needed
 
 current_dir = Path.cwd()
 naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
@@ -60,7 +67,7 @@ def clear_gpu_memory():
     gc.collect()
     print("GPU memory cleared")
 
-def get_anura_datasets(config, data_dir, use_percentage=None):
+def get_anura_datasets(config, data_dir, use_percentage=None, use_predefined_splits=True, seed=42):
     """
     Create train, validation, and test datasets from Anura data
     
@@ -68,8 +75,14 @@ def get_anura_datasets(config, data_dir, use_percentage=None):
         config: Configuration object
         data_dir: Root directory containing Anura data
         use_percentage: Percentage of data to use (for quick testing)
+        use_predefined_splits: If True, use split column from metadata. If False, create random splits.
+        seed: Random seed for reproducibility
     """
     datasets = {}
+    
+    # Set random seeds for reproducibility
+    np.random.seed(seed)
+    torch.manual_seed(seed)
     
     # Load training data
     print("Loading Anura training data...")
@@ -77,7 +90,8 @@ def get_anura_datasets(config, data_dir, use_percentage=None):
         config=config,
         split="train",
         root_dir=data_dir,
-        percentage=use_percentage
+        percentage=use_percentage,
+        use_predefined_splits=use_predefined_splits
     )
     
     # Load validation data (used during training for early stopping)
@@ -86,7 +100,8 @@ def get_anura_datasets(config, data_dir, use_percentage=None):
         config=config,
         split="valid",
         root_dir=data_dir,
-        percentage=use_percentage
+        percentage=use_percentage,
+        use_predefined_splits=use_predefined_splits
     )
     
     # Load test data (used only for final evaluation)
@@ -95,7 +110,8 @@ def get_anura_datasets(config, data_dir, use_percentage=None):
         config=config,
         split="test",
         root_dir=data_dir,
-        percentage=use_percentage
+        percentage=use_percentage,
+        use_predefined_splits=use_predefined_splits
     )
     
     print(f"\nDataset splits created:")
@@ -442,6 +458,52 @@ def main():
                        help="Skip test set evaluation after training")
     parser.add_argument("--test_output", type=str, default="fine_tune_predictions.csv",
                        help="Output file for test predictions")
+    
+    # Hyperparameter arguments
+    parser.add_argument("--learning_rate", type=float, default=None,
+                   help="Override learning rate in config")
+    parser.add_argument("--warmup_steps", type=int, default=None,
+                    help="Override warmup steps in config")
+    parser.add_argument("--weight_decay", type=float, default=None,
+                    help="Override weight decay in config")
+    parser.add_argument("--max_epochs", type=int, default=None,
+                    help="Override max epochs in config")
+    parser.add_argument("--batch_size", type=int, default=None,
+                    help="Override batch size in config")
+    parser.add_argument("--lora_rank", type=int, default=None,
+                    help="Override LoRA rank in config")
+    parser.add_argument("--lora_alpha", type=int, default=None,
+                    help="Override LoRA alpha in config")
+    parser.add_argument("--accum_grad_iters", type=int, default=None,
+                    help="Override gradient accumulation steps in config")
+    
+    # QLoRA-specific arguments
+    parser.add_argument("--use_4bit", action="store_true", default=True,
+                       help="Enable 4-bit quantization for QLoRA")
+    parser.add_argument("--bnb_4bit_compute_dtype", type=str, default="bfloat16",
+                       choices=["float16", "bfloat16", "float32"],
+                       help="Compute dtype for 4-bit layers")
+    parser.add_argument("--bnb_4bit_quant_type", type=str, default="nf4",
+                       choices=["fp4", "nf4"],
+                       help="Quantization type (fp4 or nf4)")
+    parser.add_argument("--use_nested_quant", action="store_true",
+                       help="Enable nested quantization for more memory savings")
+    
+    # Gradient checkpointing arguments
+    parser.add_argument("--use_gradient_checkpointing", action="store_true", default=True,
+                       help="Enable gradient checkpointing to save memory")
+    parser.add_argument("--gradient_checkpointing_kwargs", type=str, default='{"use_reentrant": false}',
+                       help="JSON string of gradient checkpointing kwargs")
+    parser.add_argument("--clear_cache_every_n_steps", type=int, default=10,
+                       help="Clear CUDA cache every N steps")
+    
+    parser.add_argument("--use_grid_output", action="store_true",
+                       help="Use output_dir directly without appending job_id")
+    parser.add_argument("--use_predefined_splits", action="store_true", default=True,
+                       help="Use predefined splits from metadata (ensures consistency across runs)")
+    parser.add_argument("--random_seed", type=int, default=42,
+                       help="Random seed for reproducibility")
+    
     args = parser.parse_args()
 
     # Load configuration
@@ -451,14 +513,77 @@ def main():
         cfg_path = "NatureLMaudio/configs/finetune_anura.yaml"
     
     cfg = Config.from_sources(cfg_path)
+    cfg.run.output_dir = args.output_dir
+
+    # Override hyperparameters if provided
+    if args.learning_rate is not None:
+        cfg.run.optims.init_lr = args.learning_rate
+        print(f"Overriding learning rate to: {args.learning_rate}")
+
+    if args.warmup_steps is not None:
+        cfg.run.optims.warmup_steps = args.warmup_steps
+        print(f"Overriding warmup steps to: {args.warmup_steps}")
+
+    if args.weight_decay is not None:
+        cfg.run.optims.weight_decay = args.weight_decay
+        print(f"Overriding weight decay to: {args.weight_decay}")
+
+    if args.max_epochs is not None:
+        cfg.run.optims.max_epoch = args.max_epochs
+        print(f"Overriding max epochs to: {args.max_epochs}")
+
+    if args.batch_size is not None:
+        cfg.run.batch_size_train = args.batch_size
+        cfg.run.batch_size_eval = args.batch_size
+        print(f"Overriding batch size to: {args.batch_size}")
+
+    if args.lora_rank is not None:
+        cfg.model.lora_rank = args.lora_rank
+        print(f"Overriding LoRA rank to: {args.lora_rank}")
+
+    if args.lora_alpha is not None:
+        cfg.model.lora_alpha = args.lora_alpha
+        print(f"Overriding LoRA alpha to: {args.lora_alpha}")
+
+    if args.accum_grad_iters is not None:
+        cfg.run.accum_grad_iters = args.accum_grad_iters
+        print(f"Overriding gradient accumulation steps to: {args.accum_grad_iters}")
+
+    # Add QLoRA parameters to config
+    if not hasattr(cfg.model, 'use_4bit'):
+        cfg.model.use_4bit = args.use_4bit
+    if not hasattr(cfg.model, 'bnb_4bit_compute_dtype'):
+        dtype_map = {
+            "float16": torch.float16,
+            "bfloat16": torch.bfloat16,
+            "float32": torch.float32
+        }
+        cfg.model.bnb_4bit_compute_dtype = dtype_map[args.bnb_4bit_compute_dtype]
+    if not hasattr(cfg.model, 'bnb_4bit_quant_type'):
+        cfg.model.bnb_4bit_quant_type = args.bnb_4bit_quant_type
+    if not hasattr(cfg.model, 'use_nested_quant'):
+        cfg.model.use_nested_quant = args.use_nested_quant
+
+    # Parse gradient checkpointing kwargs
+    gradient_checkpointing_kwargs = json.loads(args.gradient_checkpointing_kwargs)
+
+    # Update config with gradient checkpointing settings
+    cfg.model.use_gradient_checkpointing = args.use_gradient_checkpointing
+    cfg.model.gradient_checkpointing_kwargs = gradient_checkpointing_kwargs
+    cfg.run.enable_gradient_checkpointing = args.use_gradient_checkpointing
+    cfg.run.clear_cache_every_n_steps = args.clear_cache_every_n_steps
     
-    # Create job ID for the runner
+    # Create job ID for logging purposes (but don't use it for output path)
     percentage_str = f"_pct{args.use_percentage}" if args.use_percentage else ""
     job_id = f"anura_finetune{percentage_str}_lora{cfg.model.lora_rank}_lr{cfg.run.optims.init_lr}"
 
-    # Override output directory if specified
-    out_path = os.path.join(args.output_dir, job_id)
+    # IMPORTANT: Use the output directory directly without appending job_id
+    # The grid search already provides a unique directory
+    out_path = args.output_dir
     os.makedirs(out_path, exist_ok=True)
+    
+    print(f"Output directory: {out_path}")
+    print(f"Job ID (for reference): {job_id}")
     
     # Load the base model
     print("Loading the model...")
@@ -476,38 +601,49 @@ def main():
     model.lora_rank = cfg.model.lora_rank
     model.lora_alpha = cfg.model.lora_alpha
 
-    # Freeze non-LoRA parameters
+    # Verify trainable parameters
+    print("\n" + "="*50)
+    print("VERIFYING TRAINABLE PARAMETERS")
+    print("="*50)
+
     trainable_params = 0
     total_params = 0
+    lora_params = 0
+
     for name, param in model.named_parameters():
-        if "lora" not in name.lower():
-            param.requires_grad = False
-            
-            # Optionally offload to CPU
-            if args.cpu_offload:
-                param.data = param.data.cpu()
-        else:
-            param.requires_grad = True
-            trainable_params += param.numel()
-            # Ensure trainable params are on GPU
-            if args.cpu_offload and param.device.type == 'cpu':
-                param.data = param.data.cuda()
         total_params += param.numel()
-    
-    print(f"Trainable parameters: {trainable_params:,} / {total_params:,} ({100*trainable_params/total_params:.2f}%)")
+        if param.requires_grad:
+            trainable_params += param.numel()
+            if "lora" in name.lower():
+                lora_params += param.numel()
+                print(f"\t - Trainable LoRA param: {name} - shape: {param.shape}")
+            else:
+                print(f"\t - Trainable non-LoRA param: {name} - shape: {param.shape}")
+
+    print(f"\nTotal parameters: {total_params:,}")
+    print(f"Trainable parameters: {trainable_params:,} ({100*trainable_params/total_params:.2f}%)")
+    print(f"LoRA parameters: {lora_params:,}")
+
+    if trainable_params == 0:
+        print("ERROR: No trainable parameters found!")
+        print("Please check LoRA configuration.")
+        sys.exit(1)
+    elif lora_params == 0 and trainable_params > 0:
+        print("WARNING: Trainable parameters are not LoRA parameters!")
 
     # Prepare the datasets
     print("\nPreparing Anura datasets...")
-    datasets = get_anura_datasets(cfg, args.data_dir, use_percentage=args.use_percentage)
+    datasets = get_anura_datasets(cfg, args.data_dir, use_percentage=args.use_percentage, use_predefined_splits=args.use_predefined_splits, seed=args.random_seed)
 
-    # Load the best model
+    # Check for best model
     results_path = out_path
     best_model_path = os.path.join(results_path, "checkpoint_best.pth")
 
     if not os.path.exists(best_model_path):
         # Initialize the runner
         print("\nInitializing runner...")
-        runner = Runner(cfg, model, datasets, job_id)
+        # Pass the job_id to runner for wandb and logging
+        runner = Runner(cfg, model, datasets, job_id, use_grid_output=args.use_grid_output)
 
         # Start training
         print("\nStarting training...")
@@ -517,8 +653,9 @@ def main():
         del runner
         gc.collect()
         clear_gpu_memory()
+    else:
+        print(f"Found existing checkpoint at {best_model_path}, skipping training...")
     
-    # ================================================================================= #
     # Evaluation on test set
     if not args.skip_test_eval:
         print("\n" + "="*50)

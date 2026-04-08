@@ -222,3 +222,4 @@ beans_zero_dataset.py
 outputs/pika*
 outputs/
 vista*
+anura_fine_grid.py
