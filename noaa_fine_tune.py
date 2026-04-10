@@ -22,9 +22,9 @@ if IN_COLAB:
     naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
     if str(naturelm_dir) not in sys.path:
         sys.path.insert(0, str(naturelm_dir))
-    from NatureLMaudio.NatureLM.config import Config
-    from NatureLMaudio.NatureLM.infer import load_model_and_config, Pipeline
-    from NatureLMaudio.NatureLM.runner import Runner
+    from NatureLM.config import Config
+    from NatureLM.infer import load_model_and_config, Pipeline
+    from NatureLM.runner import Runner
 else:
     from NatureLMaudio.NatureLM.config import Config
     from NatureLMaudio.NatureLM.infer import load_model_and_config, Pipeline
