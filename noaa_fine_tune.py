@@ -362,13 +362,13 @@ def main():
     
     # Determine config path based on environment
     if IN_COLAB:
-        cfg_path = "/content/drive/MyDrive/NatureLMaudio/configs/finetune_noaa.yaml"
+        cfg_path = "/content/drive/MyDrive/NatureLMaudio/configs/finetune.yaml"
     else:
         # Look for config in standard locations
         possible_paths = [
-            "NatureLMaudio/configs/finetune_noaa.yaml",
-            "configs/finetune_noaa.yaml",
-            os.path.join(args.naturelm_dir, "configs/finetune_noaa.yaml")
+            "NatureLMaudio/configs/finetune.yaml",
+            "configs/finetuna.yaml",
+            os.path.join(args.naturelm_dir, "configs/finetune.yaml")
         ]
         cfg_path = None
         for path in possible_paths:
@@ -377,7 +377,7 @@ def main():
                 break
         
         if cfg_path is None:
-            print("Warning: finetune_noaa.yaml not found, using finetune_anura.yaml as template")
+            print("Warning: finetune.yaml not found, using finetune_anura.yaml as template")
             for path in possible_paths:
                 alt_path = path.replace("noaa", "anura")
                 if os.path.exists(alt_path):
@@ -385,7 +385,7 @@ def main():
                     break
     
     if cfg_path is None or not os.path.exists(cfg_path):
-        raise FileNotFoundError("Could not find a valid config file. Please create finetune_noaa.yaml")
+        raise FileNotFoundError("Could not find a valid config file. Please create finetune.yaml")
     
     print(f"Using config: {cfg_path}")
     cfg = Config.from_sources(cfg_path)
