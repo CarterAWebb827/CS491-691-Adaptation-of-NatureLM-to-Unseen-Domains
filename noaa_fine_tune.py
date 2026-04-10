@@ -35,9 +35,9 @@ elif IN_COLAB:
     naturelm_dir = current_dir / "NatureLMaudio"
     if str(naturelm_dir) not in sys.path:
         sys.path.insert(0, str(naturelm_dir))
-    from NatureLM.config import Config
-    from NatureLM.infer import load_model_and_config, Pipeline
-    from NatureLM.runner import Runner
+    from NatureLMaudio.NatureLM.config import Config
+    from NatureLMaudio.NatureLM.infer import load_model_and_config, Pipeline
+    from NatureLMaudio.NatureLM.runner import Runner
 else:
     from NatureLMaudio.NatureLM.config import Config
     from NatureLMaudio.NatureLM.infer import load_model_and_config, Pipeline
@@ -78,7 +78,7 @@ def get_noaa_datasets(config, data_dir, use_percentage=None, seed=42):
     # Set random seeds for reproducibility
     np.random.seed(seed)
     torch.manual_seed(seed)
-    
+
     # Load training data
     print("Loading NOAA training data...")
     datasets["train"] = RightWhaleDataset(
