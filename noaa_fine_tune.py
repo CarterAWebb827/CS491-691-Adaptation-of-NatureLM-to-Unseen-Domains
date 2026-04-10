@@ -10,8 +10,6 @@ import torch.cuda as cuda
 import json
 import numpy as np
 
-# Environment detection
-ON_VISTA = os.path.exists('/home1') or 'TACC' in os.environ.get('HOSTNAME', '')
 IN_COLAB = False
 try:
     import google.colab
@@ -19,20 +17,9 @@ try:
 except ImportError:
     pass
 
-if ON_VISTA:
-    WORK_DIR = os.environ.get('WORK', '/work')
-    SCRATCH_DIR = os.environ.get('SCRATCH', '/scratch')
-    NATURELM_DIR = os.path.join(WORK_DIR, 'NatureLMaudio')
-    
-    if str(NATURELM_DIR) not in sys.path:
-        sys.path.insert(0, str(NATURELM_DIR))
-    
-    from NatureLM.config import Config
-    from NatureLM.infer import load_model_and_config, Pipeline
-    from NatureLM.runner import Runner
-elif IN_COLAB:
+if IN_COLAB:
     current_dir = Path.cwd()
-    naturelm_dir = current_dir / "NatureLMaudio"
+    naturelm_dir = Path(os.path.join(current_dir, "NatureLMaudio"))
     if str(naturelm_dir) not in sys.path:
         sys.path.insert(0, str(naturelm_dir))
     from NatureLMaudio.NatureLM.config import Config
