@@ -25,7 +25,7 @@ if IN_COLAB:
     if str(naturelm_dir) not in sys.path:
         sys.path.insert(0, str(naturelm_dir))
         print(f"Added {naturelm_dir} to Python path")
-    from NatureLMaudio.NatureLM.dataset import collater
+    from NatureLM.dataset import collater
 
 
 class RightWhaleDataset(Dataset):
