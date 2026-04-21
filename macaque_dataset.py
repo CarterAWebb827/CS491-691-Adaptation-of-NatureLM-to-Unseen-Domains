@@ -1,13 +1,9 @@
-!mkdir -p data/macaques
-!wget -O macaques.zip https://archive.org/download/macaque_coo_calls/macaques.zip
-!unzip -q macaques.zip -d data/macaques
+# !mkdir -p data/macaques
+# !wget -O macaques.zip https://archive.org/download/macaque_coo_calls/macaques.zip
+# !unzip -q macaques.zip -d data/macaques
 
 import os
 from pathlib import Path
-
-audio_files = list(Path("data/macaques").glob("**/*.wav"))
-for f in audio_files[:5]:
-    print(f, f.parent.name)
 
 import os
 import sys
@@ -20,34 +16,25 @@ import soundfile as sf
 from sklearn.model_selection import train_test_split
 import torchaudio.transforms as T
 
-ON_VISTA = os.path.exists('/home1') or 'TACC' in os.environ.get('HOSTNAME', '')
+try:
+    import google.colab
+    IN_COLAB = True
+except ImportError:
+    IN_COLAB = False
 
-if ON_VISTA:
-    WORK_DIR = os.environ.get('WORK', '/work')
-    NATURELM_DIR = os.path.join(WORK_DIR, 'NatureLMaudio')
+audio_files = list(Path("data/macaques").glob("**/*.wav"))
+for f in audio_files[:5]:
+    print(f, f.parent.name)
 
-    if str(NATURELM_DIR) not in sys.path:
-        sys.path.insert(0, str(NATURELM_DIR))
-        print(f"Added {NATURELM_DIR} to Python path")
-
-    from NatureLM.dataset import collater
-else:
-    try:
-        import google.colab
-        IN_COLAB = True
-    except ImportError:
-        IN_COLAB = False
-
-    if IN_COLAB:
-        current_dir = Path.cwd()
-        naturelm_dir = current_dir / "NatureLMaudio"
-        if str(naturelm_dir) not in sys.path:
-            sys.path.insert(0, str(naturelm_dir))
-        from NatureLM.dataset import collater
-    else:
-        from NatureLMaudio.NatureLM.dataset import collater
+if IN_COLAB:
+    current_dir = Path.cwd()
+    naturelm_dir = current_dir / "NatureLMaudio"
+    if str(naturelm_dir) not in sys.path:
+        sys.path.insert(0, str(naturelm_dir))
 
 current_dir = Path.cwd()
+# macaque_dir = Path(os.path.join(current_dir, "data/macaques"))
+from NatureLMaudio.NatureLM.dataset import collater
 
 class MacaqueDataset(Dataset):
     _train_df = None

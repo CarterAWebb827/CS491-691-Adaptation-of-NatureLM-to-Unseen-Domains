@@ -302,7 +302,7 @@ def main():
     parser = argparse.ArgumentParser(description="Fine-tune NatureLM-audio on NOAA Right Whale dataset")
     parser.add_argument("--naturelm_dir", type=str, default="NatureLMaudio", 
                        help="Location of the NatureLM-audio directory")
-    parser.add_argument("--data_dir", type=str, default="/content/drive/MyDrive/RightWhaleData", 
+    parser.add_argument("--data_dir", type=str, default="data/NOAA", 
                        help="Location of the NOAA Right Whale data directory")
     parser.add_argument("--cpu_offload", action="store_true", 
                        help="Enable CPU offloading")
@@ -511,7 +511,7 @@ def main():
     datasets = get_noaa_datasets(cfg, args.data_dir, use_percentage=args.use_percentage, seed=args.random_seed)
     
     # Check for best model
-    results_path = out_path
+    results_path = os.path.join(out_path, "noaa_finetune_lora" + str(cfg.model.lora_rank) + "_lr" + str(cfg.run.optims.init_lr))
     best_model_path = os.path.join(results_path, "checkpoint_best.pth")
     
     if not os.path.exists(best_model_path):
@@ -574,39 +574,10 @@ def main():
                 num_examples_to_print=5
             )
             
-            # Also evaluate on validation set
-            print("\n" + "="*50)
-            print("EVALUATING ON VALIDATION SET")
-            print("="*50)
-            
-            eval_results_valid = evaluate_model(
-                model=model,
-                eval_dataset=datasets["valid"],
-                cfg_path=cfg_path,
-                results_path=results_path,
-                dataset_name="valid",
-                num_examples_to_print=3
-            )
-            
-            # Save combined metrics
-            metrics_summary = {
-                'test': eval_results,
-                'valid': eval_results_valid
-            }
-            metrics_file = os.path.join(results_path, "fine_tune_metrics_summary.json")
-            with open(metrics_file, 'w') as f:
-                # Convert numpy values to Python types for JSON serialization
-                def convert(obj):
-                    if isinstance(obj, np.integer):
-                        return int(obj)
-                    elif isinstance(obj, np.floating):
-                        return float(obj)
-                    elif isinstance(obj, np.ndarray):
-                        return obj.tolist()
-                    return obj
-                
-                json.dump(metrics_summary, f, indent=2, default=convert)
-            print(f"\nMetrics summary saved to: {metrics_file}")
+            predictions_df = pd.DataFrame(eval_results['detailed_results'])
+            predictions_file = os.path.join(results_path, args.test_output)
+            predictions_df.to_csv(predictions_file, index=False)
+            print(f"\nDetailed predictions saved to: {predictions_file}")
             
         else:
             print(f"Warning: Best model not found at {best_model_path}")
