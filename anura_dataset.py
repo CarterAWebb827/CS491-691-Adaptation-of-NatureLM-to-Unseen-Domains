@@ -9,36 +9,21 @@ import soundfile as sf
 from sklearn.model_selection import train_test_split
 import torchaudio.transforms as T
 
-# Determine if running on cluster
-ON_VISTA = os.path.exists('/home1') or 'TACC' in os.environ.get('HOSTNAME', '')
+# Colab/local path logic
+try:
+    import google.colab
+    IN_COLAB = True
+except ImportError:
+    IN_COLAB = False
 
-if ON_VISTA:
-    # On Vista, use WORK directory
-    WORK_DIR = os.environ.get('WORK', '/work')
-    NATURELM_DIR = os.path.join(WORK_DIR, 'NatureLMaudio')
-    
-    # Add to path
-    if str(NATURELM_DIR) not in sys.path:
-        sys.path.insert(0, str(NATURELM_DIR))
-        print(f"Added {NATURELM_DIR} to Python path")
-    
+if IN_COLAB:
+    current_dir = Path.cwd()
+    naturelm_dir = current_dir / "NatureLMaudio"
+    if str(naturelm_dir) not in sys.path:
+        sys.path.insert(0, str(naturelm_dir))
     from NatureLM.dataset import collater
 else:
-    # Colab/local path logic
-    try:
-        import google.colab
-        IN_COLAB = True
-    except ImportError:
-        IN_COLAB = False
-    
-    if IN_COLAB:
-        current_dir = Path.cwd()
-        naturelm_dir = current_dir / "NatureLMaudio"
-        if str(naturelm_dir) not in sys.path:
-            sys.path.insert(0, str(naturelm_dir))
-        from NatureLM.dataset import collater
-    else:
-        from NatureLMaudio.NatureLM.dataset import collater
+    from NatureLMaudio.NatureLM.dataset import collater
 
 current_dir = Path.cwd()
 anura_dir = Path(os.path.join(current_dir, "data/AnuraSet"))

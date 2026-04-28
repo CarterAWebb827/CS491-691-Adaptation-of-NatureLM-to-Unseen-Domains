@@ -25,8 +25,10 @@ if IN_COLAB:
     if str(naturelm_dir) not in sys.path:
         sys.path.insert(0, str(naturelm_dir))
         print(f"Added {naturelm_dir} to Python path")
-    from NatureLMaudio.NatureLM.dataset import collater
 
+current_dir = Path.cwd()
+noaa_dir = Path(os.path.join(current_dir, "data/NOAA"))
+from NatureLMaudio.NatureLM.dataset import collater
 
 class RightWhaleDataset(Dataset):
     SPECIES_NAME = "Right Whale"
@@ -41,7 +43,7 @@ class RightWhaleDataset(Dataset):
     _label_columns = None
     _is_prepared = False
 
-    def __init__(self, config, percentage=None, split="train", root_dir="drive/MyDrive/RightWhaleData"):
+    def __init__(self, config, percentage=None, split="train", root_dir="data/NOAA"):
         self.config = config
         self.percentage = percentage
         self.split = split
@@ -50,7 +52,7 @@ class RightWhaleDataset(Dataset):
         self.max_length_samples = 10 * self.sample_rate
         self.clip_duration_seconds = self.CHUNK_DURATION_SECONDS
         self.collater = collater
-
+        
         #create the dataframes and label columns and mark is prepared
         if not RightWhaleDataset._is_prepared:
             self._prepare_metadata()

@@ -1,53 +1,29 @@
-!mkdir -p data/macaques
-!wget -O macaques.zip https://archive.org/download/macaque_coo_calls/macaques.zip
-!unzip -q macaques.zip -d data/macaques
-
 import os
 from pathlib import Path
 
-audio_files = list(Path("data/macaques").glob("**/*.wav"))
-for f in audio_files[:5]:
-    print(f, f.parent.name)
-
-import os
 import sys
 import pandas as pd
 import numpy as np
-from pathlib import Path
 import torch
 from torch.utils.data import Dataset
 import soundfile as sf
 from sklearn.model_selection import train_test_split
 import torchaudio.transforms as T
 
-ON_VISTA = os.path.exists('/home1') or 'TACC' in os.environ.get('HOSTNAME', '')
+try:
+    import google.colab
+    IN_COLAB = True
+except ImportError:
+    IN_COLAB = False
 
-if ON_VISTA:
-    WORK_DIR = os.environ.get('WORK', '/work')
-    NATURELM_DIR = os.path.join(WORK_DIR, 'NatureLMaudio')
-
-    if str(NATURELM_DIR) not in sys.path:
-        sys.path.insert(0, str(NATURELM_DIR))
-        print(f"Added {NATURELM_DIR} to Python path")
-
-    from NatureLM.dataset import collater
-else:
-    try:
-        import google.colab
-        IN_COLAB = True
-    except ImportError:
-        IN_COLAB = False
-
-    if IN_COLAB:
-        current_dir = Path.cwd()
-        naturelm_dir = current_dir / "NatureLMaudio"
-        if str(naturelm_dir) not in sys.path:
-            sys.path.insert(0, str(naturelm_dir))
-        from NatureLM.dataset import collater
-    else:
-        from NatureLMaudio.NatureLM.dataset import collater
+if IN_COLAB:
+    current_dir = Path.cwd()
+    naturelm_dir = current_dir / "NatureLMaudio"
+    if str(naturelm_dir) not in sys.path:
+        sys.path.insert(0, str(naturelm_dir))
 
 current_dir = Path.cwd()
+from NatureLMaudio.NatureLM.dataset import collater
 
 class MacaqueDataset(Dataset):
     _train_df = None
@@ -56,7 +32,7 @@ class MacaqueDataset(Dataset):
     _label_columns = None
     _is_prepared = False
 
-    def __init__(self, config, percentage=None, split="train", root_dir="data/macaques", use_predefined_splits=True):
+    def __init__(self, config, percentage=None, split="train", root_dir="data/macaques", use_predefined_splits=True, valid_split_ratio=0.2, seed=42):
         self.config = config
         self.percentage = percentage
         self.split = split
@@ -66,6 +42,8 @@ class MacaqueDataset(Dataset):
         self.audio_column = "filename"
         self.collater = collater
         self.use_predefined_splits = use_predefined_splits
+        self.valid_split_ratio = valid_split_ratio
+        self.seed = seed
 
         if not MacaqueDataset._is_prepared:
             self._prepare_metadata()
@@ -78,36 +56,80 @@ class MacaqueDataset(Dataset):
         self.label_columns = MacaqueDataset._label_columns
 
         print(f"Loaded {self.split} split: {len(self.df)} samples")
-        print(f"Call type: {self.label_columns[0]}")
+        if len(self.label_columns) > 0:
+            print(f"Call type: {self.label_columns[0]}")
 
     def _prepare_metadata(self):
         metadata_path = self.root_dir / "metadata.csv"
-
+        needs_regeneration = True
+        
         if metadata_path.exists():
             df = pd.read_csv(metadata_path)
-        else:
-            print("No metadata found. Creating metadata from directory structure...")
+            # Check if we need to regenerate the splits
+            # Regenerate if 'test' split is empty or if split logic needs updating
+            split_counts = df['split'].value_counts().to_dict()
+            if split_counts.get('test', 0) == 0 or split_counts.get('valid', 0) == 0:
+                print("Existing metadata has empty test/valid splits. Regenerating with proper splits...")
+                needs_regeneration = True
+            else:
+                print(f"Loading existing metadata with splits: Train={split_counts.get('train', 0)}, Valid={split_counts.get('valid', 0)}, Test={split_counts.get('test', 0)}")
+                needs_regeneration = False
+        
+        if needs_regeneration or not metadata_path.exists():
+            print("Creating/Regenerating metadata with proper train/valid/test splits...")
             audio_files = []
-            for split_dir in ['train', 'valid', 'test']:
-                split_path = self.root_dir / split_dir
-                if split_path.exists():
-                    for audio_file in split_path.glob("*.wav"):
+            
+            # Handle the case where we only have train and valid folders
+            # We'll treat 'valid' as the test set and split 'train' into train/valid
+            for folder_name in ['train', 'valid']:
+                folder_path = self.root_dir / folder_name
+                if folder_path.exists():
+                    for audio_file in folder_path.glob("*.wav"):
+                        # The 'valid' folder will become our test set
+                        split_assignment = 'test' if folder_name == 'valid' else 'train'
                         audio_files.append({
                             'filename': audio_file.stem,
                             'audio_path': str(audio_file),
-                            'split': split_dir,
+                            'original_folder': folder_name,
+                            'split': split_assignment,  # Will be updated for train split later
                             'call_type': 'coo_call'
                         })
 
             df = pd.DataFrame(audio_files)
+            
+            # Now split the 'train' data into actual train and validation sets
+            train_mask = df['split'] == 'train'
+            train_df = df[train_mask].copy()
+            
+            if len(train_df) > 0:
+                # Create validation split from training data
+                train_indices, valid_indices = train_test_split(
+                    train_df.index,
+                    test_size=self.valid_split_ratio,
+                    random_state=self.seed,
+                    stratify=None  # All are coo_calls, so stratification isn't needed
+                )
+                
+                # Update split assignments
+                df.loc[train_indices, 'split'] = 'train'
+                df.loc[valid_indices, 'split'] = 'valid'
+            
             df.to_csv(metadata_path, index=False)
-            print(f"Created metadata file at {metadata_path}")
+            print(f"Created/Updated metadata file at {metadata_path}")
+            print(f"Split summary:")
+            print(f"  Train: {len(df[df['split'] == 'train'])} samples (from original train folder)")
+            print(f"  Valid: {len(df[df['split'] == 'valid'])} samples (from original train folder)")
+            print(f"  Test: {len(df[df['split'] == 'test'])} samples (from original valid folder)")
+        else:
+            df = pd.read_csv(metadata_path)
 
         label_columns = ['coo_call']
         MacaqueDataset._label_columns = label_columns
 
+        # Ensure label columns exist
         for col in label_columns:
-            df[col] = (df['call_type'] == col).astype(int)
+            if col not in df.columns:
+                df[col] = (df['call_type'] == col).astype(int)
 
         needs_update = False
 
@@ -123,31 +145,15 @@ class MacaqueDataset(Dataset):
             df["output"] = self._create_output_column(df, MacaqueDataset._label_columns)
             needs_update = True
 
-        if "split" not in df.columns:
-            print("No 'split' column found. Creating predefined splits...")
-            df = self._create_predefined_splits(df)
-            needs_update = True
-
         if needs_update:
             self._save_metadata_extra(df)
+            # Also update the main metadata file
+            df.to_csv(metadata_path, index=False)
 
         MacaqueDataset._full_df = df
 
     def _create_predefined_splits(self, df):
-        if 'split' in df.columns:
-            return df
-
-        train_df = df[df['split'] == 'train'].copy()
-        val_df = df[df['split'] == 'valid'].copy()
-        test_df = df[df['split'] == 'test'].copy()
-
-        print("="*30)
-        print("Using existing directory structure for splits:")
-        print(f"\tTrain: {len(train_df)} samples")
-        print(f"\tValid: {len(val_df)} samples")
-        print(f"\tTest: {len(test_df)} samples")
-        print("="*30)
-
+        """This method is no longer needed as splits are created in _prepare_metadata"""
         return df
 
     def _load_predefined_splits(self):
@@ -155,48 +161,64 @@ class MacaqueDataset(Dataset):
 
         if self.percentage is not None:
             split_df = df[df['split'] == self.split].copy()
-
-            stratify_labels = split_df[MacaqueDataset._label_columns].sum(axis=1) > 0
-
+            
+            # Since all samples are coo_calls, we don't need stratification
             sample_size = int(len(split_df) * self.percentage)
-
-            _, sampled_df = train_test_split(
-                split_df,
-                test_size=sample_size,
-                random_state=42,
-                stratify=stratify_labels
-            )
-            self.df = sampled_df
+            
+            if sample_size > 0 and sample_size < len(split_df):
+                _, sampled_df = train_test_split(
+                    split_df,
+                    test_size=sample_size,
+                    random_state=self.seed
+                )
+                self.df = sampled_df
+            else:
+                self.df = split_df
         else:
             self.df = df[df['split'] == self.split].copy()
+
+    def _filter_short_audio(self, df, min_duration=0.5):
+        """Filter out audio files shorter than minimum duration"""
+        original_count = len(df)
+        
+        def get_duration(audio_path):
+            try:
+                info = sf.info(audio_path)
+                return info.duration
+            except:
+                return 0
+        
+        df['duration'] = df['audio_path'].apply(get_duration)
+        df = df[df['duration'] >= min_duration].copy()
+        df = df.drop(columns=['duration'])
+        
+        filtered_count = len(df)
+        if original_count != filtered_count:
+            print(f"Filtered out {original_count - filtered_count} audio files shorter than {min_duration}s")
+        
+        return df
 
     def _load_random_splits(self):
         df = MacaqueDataset._full_df
 
         if self.percentage is not None:
-            current_stratify = df[MacaqueDataset._label_columns].sum(axis=1) > 0
             _, df = train_test_split(
                 df,
                 test_size=self.percentage,
-                random_state=42,
-                stratify=current_stratify
+                random_state=self.seed
             )
 
-        stratify_labels = df[MacaqueDataset._label_columns].sum(axis=1) > 0
-
+        # Split into train (70%), validation (15%), test (15%)
         train_val_df, test_df = train_test_split(
             df,
-            test_size=0.1,
-            random_state=42,
-            stratify=stratify_labels
+            test_size=0.15,
+            random_state=self.seed
         )
 
-        train_val_stratify = train_val_df[MacaqueDataset._label_columns].sum(axis=1) > 0
         train_df, val_df = train_test_split(
             train_val_df,
-            test_size=0.2,
-            random_state=42,
-            stratify=train_val_stratify
+            test_size=self.valid_split_ratio,
+            random_state=self.seed
         )
 
         MacaqueDataset._train_df = train_df
@@ -245,9 +267,18 @@ class MacaqueDataset(Dataset):
             else:
                 wav_tensor = torch.from_numpy(wav).float()
 
-            if len(wav) < self.max_length_samples:
+            # Ensure minimum length of 0.5 seconds (8000 samples at 16kHz)
+            min_length_samples = int(0.5 * self.sample_rate)  # 8000 samples
+            
+            if len(wav) < min_length_samples:
+                # Pad to minimum length
+                pad_length = min_length_samples - len(wav)
+                wav = np.pad(wav, (0, pad_length), mode='constant', constant_values=0)
+            elif len(wav) < self.max_length_samples:
+                # Pad to max length if shorter
                 wav = np.pad(wav, (0, self.max_length_samples - len(wav)))
             else:
+                # Random crop for training, center crop for validation/test
                 if self.split == "train":
                     start = np.random.randint(0, len(wav) - self.max_length_samples)
                     wav = wav[start:start + self.max_length_samples]
