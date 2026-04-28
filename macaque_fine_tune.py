@@ -50,7 +50,7 @@ def clear_gpu_memory():
     gc.collect()
     print("GPU memory cleared")
 
-def get_macaque_datasets(config, data_dir, use_percentage=None, use_predefined_splits=True, seed=42):
+def get_macaque_datasets(config, data_dir, use_percentage=None, use_predefined_splits=True, valid_split_ratio=0.2, seed=42):
     """
     Create train, validation, and test datasets from Macaque data
     
@@ -59,6 +59,7 @@ def get_macaque_datasets(config, data_dir, use_percentage=None, use_predefined_s
         data_dir: Root directory containing Macaque data
         use_percentage: Percentage of data to use (for quick testing)
         use_predefined_splits: If True, use split column from metadata. If False, create random splits.
+        valid_split_ratio: Ratio of training data to use for validation (when use_predefined_splits=True)
         seed: Random seed for reproducibility
     """
     datasets = {}
@@ -74,7 +75,9 @@ def get_macaque_datasets(config, data_dir, use_percentage=None, use_predefined_s
         split="train",
         root_dir=data_dir,
         percentage=use_percentage,
-        use_predefined_splits=use_predefined_splits
+        use_predefined_splits=use_predefined_splits,
+        valid_split_ratio=valid_split_ratio,
+        seed=seed
     )
     
     # Load validation data (used during training for early stopping)
@@ -84,7 +87,9 @@ def get_macaque_datasets(config, data_dir, use_percentage=None, use_predefined_s
         split="valid",
         root_dir=data_dir,
         percentage=use_percentage,
-        use_predefined_splits=use_predefined_splits
+        use_predefined_splits=use_predefined_splits,
+        valid_split_ratio=valid_split_ratio,
+        seed=seed
     )
     
     # Load test data (used only for final evaluation)
@@ -94,7 +99,9 @@ def get_macaque_datasets(config, data_dir, use_percentage=None, use_predefined_s
         split="test",
         root_dir=data_dir,
         percentage=use_percentage,
-        use_predefined_splits=use_predefined_splits
+        use_predefined_splits=use_predefined_splits,
+        valid_split_ratio=valid_split_ratio,
+        seed=seed
     )
     
     print(f"\nDataset splits created:")
@@ -413,6 +420,8 @@ def main():
                        help="Location of the NatureLM-audio directory")
     parser.add_argument("--data_dir", type=str, default="data/macaques", 
                        help="Location of the Macaque data directory")
+    parser.add_argument("--valid_split_ratio", type=float, default=0.2,
+                   help="Ratio of training data to use for validation (when use_predefined_splits=True)")
     parser.add_argument("--cpu_offload", action="store_true", 
                        help="Enable CPU offloading")
     parser.add_argument("--output_dir", type=str, default="outputs/macaque_finetune",
@@ -619,7 +628,9 @@ def main():
     
     # Prepare the datasets
     print("\nPreparing Macaque datasets...")
-    datasets = get_macaque_datasets(cfg, args.data_dir, use_percentage=args.use_percentage, use_predefined_splits=args.use_predefined_splits, seed=args.random_seed)
+    datasets = get_macaque_datasets(cfg, args.data_dir, use_percentage=args.use_percentage, 
+                                    use_predefined_splits=args.use_predefined_splits, 
+                                    valid_split_ratio=args.valid_split_ratio, seed=args.random_seed)
     
     # Check for best model
     results_path = os.path.join(out_path, "macaque_finetune_lora" + str(cfg.model.lora_rank) + "_lr" + str(cfg.run.optims.init_lr))
